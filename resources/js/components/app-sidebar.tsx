@@ -13,7 +13,7 @@ import {
 import { dashboard, login, register } from '@/routes';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Newspaper, User } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Newspaper, User, Tags } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -34,6 +34,11 @@ const adminNavItems: NavItem[] = [
         title: 'Users',
         href: '/admin/users',
         icon: User,
+    },
+    {
+        title: 'Categories',
+        href: '/admin/categories',
+        icon: Tags,
     },
 ];
 

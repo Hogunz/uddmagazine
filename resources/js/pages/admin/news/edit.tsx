@@ -6,11 +6,14 @@ import { FormEventHandler } from 'react';
 import { ImageUpload, MultiImageUpload } from '@/components/image-upload';
 import RichTextEditor from '@/components/rich-text-editor';
 
-export default function EditNews({ article }: { article: Article }) {
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+export default function EditNews({ article, categories }: { article: Article, categories: Category[] }) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         title: article.title,
         slug: article.slug,
+        category_id: article.category_id ? String(article.category_id) : '',
         content: article.content,
         published_at: article.published_at || '',
 
@@ -49,10 +52,22 @@ export default function EditNews({ article }: { article: Article }) {
                                 />
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
-
-
-
-
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Category (Optional)</label>
+                                <Select value={data.category_id} onValueChange={(value) => setData('category_id', value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={String(category.id)}>
+                                                {category.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.category_id && <div className="text-red-500 text-sm mt-1">{errors.category_id}</div>}
+                            </div>
 
                             <div>
                                 <RichTextEditor

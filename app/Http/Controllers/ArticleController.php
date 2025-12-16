@@ -20,14 +20,41 @@ class ArticleController extends Controller
     public function show($slug)
     {
         $article = Article::with('user')->where('slug', $slug)->firstOrFail();
+        $article->increment('views');
         return Inertia::render('news/show', [
             'article' => $article,
+        ]);
+    }
+
+    public function category($slug)
+    {
+        $category = \App\Models\Category::where('slug', $slug)->firstOrFail();
+        
+        $articles = Article::with('user')
+            ->where('category_id', $category->id)
+            ->latest()
+            ->paginate(12);
+
+        $trendingArticles = Article::with('user')
+            ->where('category_id', $category->id)
+            ->orderBy('views', 'desc')
+            ->take(4)
+            ->get();
+
+        return Inertia::render('category/show', [
+            'category' => $category,
+            'articles' => $articles,
+            'trendingArticles' => $trendingArticles,
+            'categories' => \App\Models\Category::all(),
         ]);
     }
     public function create()
     {
         abort_unless(auth()->user()->is_admin, 403);
-        return Inertia::render('admin/news/create');
+        $categories = \App\Models\Category::all();
+        return Inertia::render('admin/news/create', [
+            'categories' => $categories,
+        ]);
     }
 
     public function store(Request $request)
@@ -42,7 +69,7 @@ class ArticleController extends Controller
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:51200', // Max 50MB
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'image|max:2048', // Allow image files
-            // 'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'published_at' => 'nullable|date',
         ]);
 
@@ -80,9 +107,10 @@ class ArticleController extends Controller
     public function edit(Article $article)
     {
         abort_unless(auth()->user()->is_admin, 403);
-
+        $categories = \App\Models\Category::all();
         return Inertia::render('admin/news/edit', [
             'article' => $article,
+            'categories' => $categories,
         ]);
     }
 
@@ -98,7 +126,7 @@ class ArticleController extends Controller
             'video' => 'nullable', // Can be string (existing) or file (new)
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'nullable', // Can be string (existing) or file (new)
-            // 'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'published_at' => 'nullable|date',
         ]);
 

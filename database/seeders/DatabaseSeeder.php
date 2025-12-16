@@ -26,8 +26,26 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $categories = \App\Models\Category::factory(5)->create();
+        $categoryNames = [
+            'Culture & Heritage',
+            'People of Honor',
+            'Arts & Creativity',
+            'Faith & Values',
+            'Education & Innovation',
+            'Community & Society',
+            'Opinion / Dayew Speaks',
+            'Lifestyle with Purpose',
+        ];
+
+        $categories = collect($categoryNames)->map(function ($name) {
+            return \App\Models\Category::firstOrCreate(
+                ['name' => $name],
+                ['slug' => \Illuminate\Support\Str::slug($name)]
+            );
+        });
+
+        // $categories = \App\Models\Category::factory(5)->create();
         \App\Models\Article::factory(20)->recycle($categories)->create();
-        \App\Models\Event::factory(10)->recycle($categories)->create();
+        // \App\Models\Event::factory(10)->recycle($categories)->create();
     }
 }

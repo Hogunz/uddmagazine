@@ -48,6 +48,7 @@ export interface Category {
     id: number;
     name: string;
     slug: string;
+    articles?: Article[];
     parent_id?: number | null;
     created_at: string;
     updated_at: string;
@@ -69,3 +70,9 @@ export interface Article {
     updated_at: string;
 }
 
+
+export { };
+
+declare global {
+    var route: (name?: string, params?: any, absolute?: boolean, config?: any) => string;
+}

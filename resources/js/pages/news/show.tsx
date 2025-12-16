@@ -66,8 +66,12 @@ export default function NewsShow({ article }: { article: Article }) {
                 )}
 
                 {!article.video && article.image && (
-                    <div className="aspect-video w-full rounded-xl overflow-hidden mb-8">
-                        <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+                    <div className="w-full rounded-xl overflow-hidden mb-8 shadow-sm">
+                        <img
+                            src={article.image}
+                            alt={article.title}
+                            className="w-full h-auto"
+                        />
                     </div>
                 )}
 

@@ -13,7 +13,10 @@ export default function ArticleCard({ article, className }: { article: Article, 
                     <img
                         src={article.image}
                         alt={article.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') || article.image === '/UdD-Logo.png'
+                            ? 'object-contain p-8 bg-secondary/10'
+                            : 'object-cover'
+                            }`}
                     />
                 )}
                 {/* Overlay for depth on hover, optional */}
@@ -43,11 +46,11 @@ export default function ArticleCard({ article, className }: { article: Article, 
                     </time>
                 </div>
 
-                <h3 className="font-serif text-2xl font-bold leading-tight decoration-primary/50 underline-offset-4 transition-colors group-hover:text-primary group-hover:underline">
+                <h3 className="font-serif text-2xl font-bold leading-tight decoration-primary/50 underline-offset-4 transition-colors group-hover:text-primary group-hover:underline break-words">
                     {article.title}
                 </h3>
 
-                <p className="line-clamp-2 text-muted-foreground font-sans">
+                <p className="line-clamp-2 text-muted-foreground font-sans break-words">
                     {stripHtml(article.content)}
                 </p>
             </div>
