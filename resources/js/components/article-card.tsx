@@ -22,11 +22,14 @@ export default function ArticleCard({ article, className }: { article: Article, 
                 {/* Overlay for depth on hover, optional */}
                 <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
 
-                {/* Video Indicator */}
+                {/* Video Indicator - Premium Style */}
                 {article.video && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="bg-black/30 backdrop-blur-sm rounded-full p-2 group-hover:bg-black/50 transition-colors">
-                            <PlayCircle className="w-10 h-10 text-white" />
+                        <div className="bg-white/90 rounded-full p-4 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                            <PlayCircle className="w-8 h-8 text-primary fill-current" />
+                        </div>
+                        <div className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded">
+                            WATCH
                         </div>
                     </div>
                 )}

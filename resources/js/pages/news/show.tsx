@@ -66,11 +66,11 @@ export default function NewsShow({ article }: { article: Article }) {
                 )}
 
                 {!article.video && article.image && (
-                    <div className="w-full rounded-xl overflow-hidden mb-8 shadow-sm">
+                    <div className="w-full rounded-xl overflow-hidden mb-8 shadow-sm flex justify-center bg-secondary/5">
                         <img
                             src={article.image}
                             alt={article.title}
-                            className="w-full h-auto"
+                            className="max-h-[600px] w-auto h-auto object-contain"
                         />
                     </div>
                 )}

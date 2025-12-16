@@ -1,5 +1,6 @@
 import { type SharedData, type Article, type Category } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
+import { PlayCircle } from 'lucide-react';
 import ArticleCard from '@/components/article-card';
 import { Button } from '@/components/ui/button';
 import { stripHtml } from '@/lib/utils';
@@ -50,15 +51,15 @@ export default function Welcome({
                     <div className="container mx-auto px-4 lg:px-6">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 min-h-[400px] py-12 lg:py-16 items-center">
                             {/* Hero Content */}
-                            <div className="lg:col-span-7 flex flex-col justify-center relative z-10 space-y-6">
+                            <div className="lg:col-span-4 flex flex-col justify-center relative z-10 space-y-6">
                                 <div className="space-y-4">
                                     <div className="inline-flex items-center gap-2">
                                         <span className="h-2 w-2 rounded-full bg-primary" />
-                                        <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">Featured Story</span>
+                                        <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">Featured</span>
                                     </div>
 
                                     <Link href={`/news/${heroArticle.slug}`} className="group block space-y-4">
-                                        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold leading-tight break-words group-hover:text-primary transition-colors">
+                                        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold leading-tight break-words group-hover:text-primary transition-colors line-clamp-3">
                                             {heroArticle.title}
                                         </h1>
 
@@ -81,8 +82,31 @@ export default function Welcome({
                             </div>
 
                             {/* Hero Image - Floating Card Style */}
-                            <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
-                                {heroArticle.image ? (
+                            <div className="lg:col-span-8 flex items-center justify-center lg:justify-end">
+                                {heroArticle.video ? (
+                                    <div className="relative w-full group">
+                                        {/* Decorative offset bg */}
+                                        <div className="absolute inset-0 translate-x-3 translate-y-3 bg-primary/5 rounded-2xl -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-500" />
+
+                                        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl ring-1 ring-border/50 bg-black">
+                                            <video
+                                                src={heroArticle.video}
+                                                className="w-full h-full object-cover"
+                                                autoPlay
+                                                muted
+                                                loop
+                                                playsInline
+                                            />
+                                            <Link href={`/news/${heroArticle.slug}`} className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer">
+                                                <div className="bg-white/90 text-primary rounded-full p-5 shadow-2xl hover:scale-110 transition-transform duration-300">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="ml-1">
+                                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                                    </svg>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ) : heroArticle.image ? (
                                     <Link href={`/news/${heroArticle.slug}`} className="relative block w-full group">
                                         {/* Decorative offset bg */}
                                         <div className="absolute inset-0 translate-x-3 translate-y-3 bg-primary/5 rounded-2xl -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-500" />
@@ -146,28 +170,101 @@ export default function Welcome({
                                             </Link>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                            {category.articles.map(article => (
-                                                <Link key={article.id} href={`/news/${article.slug}`} className="group block space-y-3">
-                                                    <div className="aspect-[3/2] overflow-hidden rounded-md bg-muted relative">
-                                                        {article.image && (
-                                                            <img
-                                                                src={article.image}
-                                                                alt={article.title}
-                                                                className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
-                                                            />
-                                                        )}
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                                                    </div>
-                                                    <h4 className="font-serif text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 break-words">
-                                                        {article.title}
-                                                    </h4>
-                                                    <time className="text-xs text-muted-foreground block font-sans">
-                                                        {new Date(article.published_at || article.created_at).toLocaleDateString()}
-                                                    </time>
-                                                </Link>
-                                            ))}
-                                        </div>
+                                        {/* Alternating Layouts */}
+                                        {index % 2 === 0 ? (
+                                            // Layout A: 1 Large Feature + Side List (1 + 3)
+                                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                                {/* Large Feature */}
+                                                <div className="lg:col-span-8">
+                                                    {category.articles[0] && (
+                                                        <Link href={`/news/${category.articles[0].slug}`} className="group grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                                                            <div className="aspect-video overflow-hidden rounded-md bg-muted relative">
+                                                                {category.articles[0].image && (
+                                                                    <img
+                                                                        src={category.articles[0].image}
+                                                                        alt={category.articles[0].title}
+                                                                        className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${category.articles[0].image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
+                                                                    />
+                                                                )}
+                                                                {category.articles[0].video && (
+                                                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                                        <div className="bg-white/90 rounded-full p-3 shadow-lg">
+                                                                            <PlayCircle className="w-8 h-8 text-primary fill-current" />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="space-y-3">
+                                                                <h4 className="font-serif text-2xl font-bold leading-tight group-hover:text-primary transition-colors break-words">
+                                                                    {category.articles[0].title}
+                                                                </h4>
+                                                                <p className="text-muted-foreground line-clamp-3 font-sans text-sm break-words">
+                                                                    {stripHtml(category.articles[0].content)}
+                                                                </p>
+                                                                <time className="text-xs text-muted-foreground block font-sans">
+                                                                    {new Date(category.articles[0].published_at || category.articles[0].created_at).toLocaleDateString()}
+                                                                </time>
+                                                            </div>
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                                {/* Side List */}
+                                                <div className="lg:col-span-4 flex flex-col gap-6 border-l pl-0 lg:pl-8 border-border/50">
+                                                    {category.articles.slice(1, 4).map(article => (
+                                                        <Link key={article.id} href={`/news/${article.slug}`} className="group flex gap-4 items-start">
+                                                            <div className="w-20 h-20 shrink-0 aspect-square overflow-hidden rounded-md bg-muted relative">
+                                                                {article.image && (
+                                                                    <img
+                                                                        src={article.image}
+                                                                        alt={article.title}
+                                                                        className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') ? 'object-contain p-2 bg-secondary/10' : 'object-cover'}`}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <h4 className="font-serif font-bold text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2 break-words">
+                                                                    {article.title}
+                                                                </h4>
+                                                                <time className="text-xs text-muted-foreground block font-sans">
+                                                                    {new Date(article.published_at || article.created_at).toLocaleDateString()}
+                                                                </time>
+                                                            </div>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            // Layout B: Standard 4-Col Grid (but cleaner)
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                                                {category.articles.map(article => (
+                                                    <Link key={article.id} href={`/news/${article.slug}`} className="group block space-y-3">
+                                                        <div className="aspect-[3/2] overflow-hidden rounded-md bg-muted relative shadow-sm">
+                                                            {article.image && (
+                                                                <img
+                                                                    src={article.image}
+                                                                    alt={article.title}
+                                                                    className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
+                                                                />
+                                                            )}
+                                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                                                            {article.video && (
+                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                                    <div className="bg-white/90 rounded-full p-2 shadow-md">
+                                                                        <PlayCircle className="w-6 h-6 text-primary fill-current" />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <h4 className="font-serif text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 break-words">
+                                                            {article.title}
+                                                        </h4>
+                                                        <time className="text-xs text-muted-foreground block font-sans">
+                                                            {new Date(article.published_at || article.created_at).toLocaleDateString()}
+                                                        </time>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 )
                             ))}
