@@ -1,0 +1,33 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // User::factory(10)->create();
+
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => 'password',
+                'email_verified_at' => now(),
+                'is_admin' => true,
+                'is_super_admin' => true,
+            ]
+        );
+
+        $categories = \App\Models\Category::factory(5)->create();
+        \App\Models\Article::factory(20)->recycle($categories)->create();
+        \App\Models\Event::factory(10)->recycle($categories)->create();
+    }
+}

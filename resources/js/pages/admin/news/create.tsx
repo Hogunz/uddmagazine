@@ -1,0 +1,118 @@
+import { Head, useForm } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
+import { Category } from '@/types';
+import { FormEventHandler } from 'react';
+import { ImageUpload, MultiImageUpload } from '@/components/image-upload';
+import RichTextEditor from '@/components/rich-text-editor';
+
+export default function CreateNews() {
+    const { data, setData, post, processing, errors } = useForm({
+        title: '',
+        slug: '',
+        content: '',
+        published_at: '',
+
+        image: null as File | null,
+        video: null as File | null,
+        gallery_images: [] as (File | string)[],
+    });
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post('/admin/news', {
+            forceFormData: true,
+        });
+    };
+
+    return (
+        <AppLayout breadcrumbs={[{ title: 'News', href: '/news' }, { title: 'Create', href: '#' }]}>
+            <Head title="Create Article" />
+
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <h2 className="text-2xl font-bold mb-6">Create New Article</h2>
+
+                        <form onSubmit={submit} className="space-y-6 max-w-2xl">
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
+                                <input
+                                    id="title"
+                                    type="text"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-zinc-800 dark:border-zinc-700"
+                                    value={data.title}
+                                    onChange={e => setData('title', e.target.value)}
+                                    required
+                                />
+                                {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
+                            </div>
+
+
+
+
+
+                            <div>
+                                <RichTextEditor
+                                    label="Content"
+                                    value={data.content}
+                                    onChange={(content) => setData('content', content)}
+                                    error={errors.content}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="published_at" className="block text-sm font-medium mb-1">Published Date (Optional)</label>
+                                <input
+                                    id="published_at"
+                                    type="datetime-local"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-zinc-800 dark:border-zinc-700"
+                                    value={data.published_at}
+                                    onChange={e => setData('published_at', e.target.value)}
+                                />
+                                {errors.published_at && <div className="text-red-500 text-sm mt-1">{errors.published_at}</div>}
+                            </div>
+
+                            <div>
+                                <ImageUpload
+                                    label="Main Image"
+                                    value={data.image}
+                                    onChange={(file) => setData('image', file)}
+                                    error={errors.image}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="video" className="block text-sm font-medium mb-1">Video (Optional)</label>
+                                <input
+                                    id="video"
+                                    type="file"
+                                    accept="video/*"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-zinc-800 dark:border-zinc-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                    onChange={e => setData('video', e.target.files ? e.target.files[0] : null)}
+                                />
+                                {errors.video && <div className="text-red-500 text-sm mt-1">{errors.video}</div>}
+                            </div>
+
+                            <div>
+                                <MultiImageUpload
+                                    label="Gallery Images"
+                                    values={data.gallery_images}
+                                    onChange={(files) => setData('gallery_images', files as unknown as any[])}
+                                    error={errors.gallery_images}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <Button type="submit" disabled={processing}>
+                                    Create Article
+                                </Button>
+                                <a href="/news" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </AppLayout>
+    );
+}
