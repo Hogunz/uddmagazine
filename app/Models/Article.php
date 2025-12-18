@@ -20,11 +20,13 @@ class Article extends Model
         'published_at',
         'category_id',
         'user_id',
+        'is_hero',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'gallery_images' => 'array',
+        'is_hero' => 'boolean',
     ];
 
     public function user()

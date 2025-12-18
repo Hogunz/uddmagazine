@@ -16,6 +16,7 @@ export default function EditNews({ article, categories }: { article: Article, ca
         category_id: article.category_id ? String(article.category_id) : '',
         content: article.content,
         published_at: article.published_at || '',
+        is_hero: article.is_hero || false,
 
         image: article.image || (null as File | string | null),
         video: article.video || (null as File | string | null),
@@ -37,7 +38,7 @@ export default function EditNews({ article, categories }: { article: Article, ca
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <h2 className="text-2xl font-bold mb-6">Edit Article</h2>
+                        <h2 className="text-2xl font-bold mb-6">Edit {article.is_hero ? 'Hero' : ''} Article</h2>
 
                         <form onSubmit={submit} className="space-y-6 max-w-2xl">
                             <div>
@@ -87,6 +88,7 @@ export default function EditNews({ article, categories }: { article: Article, ca
                                     value={data.published_at}
                                     onChange={e => setData('published_at', e.target.value)}
                                 />
+                                {errors.published_at && <div className="text-red-500 text-sm mt-1">{errors.published_at}</div>}
                                 {errors.published_at && <div className="text-red-500 text-sm mt-1">{errors.published_at}</div>}
                             </div>
 

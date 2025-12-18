@@ -68,6 +68,7 @@ export interface Article {
     user?: User | null;
     created_at: string;
     updated_at: string;
+    is_hero?: boolean;
 }
 
 

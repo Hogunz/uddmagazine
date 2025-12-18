@@ -1,4 +1,4 @@
-import { NavFooter } from '@/components/nav-footer';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -13,7 +13,7 @@ import {
 import { dashboard, login, register } from '@/routes';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Newspaper, User, Tags } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Newspaper, User, Tags, Star } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -31,6 +31,12 @@ const mainNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
     {
+        title: 'Hero Section',
+        href: '/admin/news?type=hero',
+        icon: Star, // Need to import Star
+    },
+
+    {
         title: 'Users',
         href: '/admin/users',
         icon: User,
@@ -42,18 +48,7 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
@@ -84,7 +79,9 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                <div className="px-2 py-2">
+                    <AppearanceToggleDropdown className="w-full justify-start" />
+                </div>
                 {auth.user ? (
                     <NavUser />
                 ) : (

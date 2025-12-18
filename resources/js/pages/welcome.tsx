@@ -1,11 +1,20 @@
 import { type SharedData, type Article, type Category } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { PlayCircle } from 'lucide-react';
+import { Head, Link, usePage, router } from '@inertiajs/react'; // Added router
+import { ArrowRight, ChevronRight, Play, Pencil, Trash2, PlayCircle } from 'lucide-react'; // Added Pencil, Trash2, PlayCircle
 import ArticleCard from '@/components/article-card';
 import { Button } from '@/components/ui/button';
 import { stripHtml } from '@/lib/utils';
 import Pagination from '@/components/pagination';
 import MainLayout from '@/layouts/main-layout';
+import Autoplay from 'embla-carousel-autoplay';
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel"
+import React from 'react';
 
 interface PaginatedArticles {
     data: Article[];
@@ -18,24 +27,34 @@ interface PaginatedArticles {
 
 export default function Welcome({
     canRegister = true,
-    featuredArticles = [],
+    heroArticles = [], // New Prop
+    latestArticles = [], // New Prop
     moreArticles,
     categories = [],
     trendingArticles = [],
     currentCategory,
 }: {
     canRegister?: boolean;
-    featuredArticles?: Article[];
+    heroArticles?: Article[]; // Updated Prop
+    latestArticles?: Article[]; // Updated Prop
     moreArticles?: PaginatedArticles;
     categories?: Category[];
     trendingArticles?: Article[];
     currentCategory?: Category;
+    featuredArticles?: Article[]; // Deprecated, kept for loose typing if needed, but not used.
 }) {
     const { auth } = usePage<SharedData>().props;
 
+    const handleDelete = (id: number) => {
+        if (confirm('Are you sure you want to delete this article?')) {
+            router.delete(`/admin/news/${id}`);
+        }
+    };
+
     // Featured Data Processing
-    const heroArticle = featuredArticles.length > 0 ? featuredArticles[0] : null;
-    const latestArticles = featuredArticles.length > 0 ? featuredArticles.slice(1) : []; // The 4 main grid items
+    // No more slicing, we use the explicit collections passed from backend
+    // heroArticles are already the hero ones.
+    // latestArticles are the grid ones.
 
     // Paginated Data
     const otherArticles = moreArticles?.data || [];
@@ -44,89 +63,147 @@ export default function Welcome({
         <MainLayout categories={categories} currentCategory={currentCategory}>
             <Head title={currentCategory ? `${currentCategory.name} - Dayew Magazine` : "Welcome - Dayew Magazine"} />
 
-            {/* Hero Section - Magazine Style */}
+            {/* Hero Section - Dynamic Carousel */}
+            {heroArticles.length > 0 ? (
+                <section className="relative w-full border-b border-border/50 bg-gradient-to-b from-muted/20 to-background/50">
+                    <Carousel
+                        opts={{
+                            loop: true,
+                        }}
+                        plugins={[
+                            Autoplay({
+                                delay: 5000,
+                            }),
+                        ]}
+                        className="w-full"
+                    >
+                        <CarouselContent>
+                            {heroArticles.map((heroArticle) => (
+                                <CarouselItem key={heroArticle.id}>
+                                    <div className="container mx-auto px-4 lg:px-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 min-h-[400px] py-12 lg:py-20 items-center">
+                                            {/* Hero Content - Expanded col-span-5 */}
+                                            <div className="lg:col-span-5 flex flex-col justify-center relative z-10 space-y-8 order-2 lg:order-1">
+                                                <div className="space-y-6">
 
-            {heroArticle ? (
-                <section className="relative w-full border-b border-border bg-muted/10">
-                    <div className="container mx-auto px-4 lg:px-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 min-h-[400px] py-12 lg:py-16 items-center">
-                            {/* Hero Content */}
-                            <div className="lg:col-span-4 flex flex-col justify-center relative z-10 space-y-6">
-                                <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-primary" />
-                                        <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">Featured</span>
-                                    </div>
+                                                    <Link href={`/news/${heroArticle.slug}`} className="group block space-y-4">
+                                                        <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-serif font-bold leading-tight tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-3 break-words">
+                                                            {heroArticle.title}
+                                                        </h1>
 
-                                    <Link href={`/news/${heroArticle.slug}`} className="group block space-y-4">
-                                        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold leading-tight break-words group-hover:text-primary transition-colors line-clamp-3">
-                                            {heroArticle.title}
-                                        </h1>
+                                                        <p className="text-lg md:text-xl text-muted-foreground line-clamp-3 font-sans leading-relaxed max-w-xl">
+                                                            {stripHtml(heroArticle.content)}
+                                                        </p>
+                                                    </Link>
 
-                                        <p className="text-lg text-muted-foreground line-clamp-3 font-sans leading-relaxed max-w-2xl break-words">
-                                            {stripHtml(heroArticle.content)}
-                                        </p>
-                                    </Link>
+                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-6 pt-2">
+                                                        <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm uppercase ring-2 ring-background">
+                                                                    {heroArticle.user?.name?.[0] || 'E'}
+                                                                </div>
+                                                                <span className="text-foreground">{heroArticle.user?.name || 'Editorial Staff'}</span>
+                                                            </div>
+                                                            <span className="opacity-50">•</span>
+                                                            <time>{new Date(heroArticle.published_at || heroArticle.created_at).toLocaleDateString()}</time>
+                                                        </div>
 
-                                    <div className="pt-2 flex items-center gap-4 text-sm text-muted-foreground font-medium">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
-                                                {heroArticle.user?.name?.[0] || 'E'}
-                                            </div>
-                                            <span className="text-foreground">{heroArticle.user?.name || 'Editorial Staff'}</span>
-                                        </div>
-                                        <span>•</span>
-                                        <time>{new Date(heroArticle.published_at || heroArticle.created_at).toLocaleDateString()}</time>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Hero Image - Floating Card Style */}
-                            <div className="lg:col-span-8 flex items-center justify-center lg:justify-end">
-                                {heroArticle.video ? (
-                                    <div className="relative w-full group">
-                                        {/* Decorative offset bg */}
-                                        <div className="absolute inset-0 translate-x-3 translate-y-3 bg-primary/5 rounded-2xl -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-500" />
-
-                                        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl ring-1 ring-border/50 bg-black">
-                                            <video
-                                                src={heroArticle.video}
-                                                className="w-full h-full object-cover"
-                                                autoPlay
-                                                muted
-                                                loop
-                                                playsInline
-                                            />
-                                            <Link href={`/news/${heroArticle.slug}`} className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer">
-                                                <div className="bg-white/90 text-primary rounded-full p-5 shadow-2xl hover:scale-110 transition-transform duration-300">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="ml-1">
-                                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                                                    </svg>
+                                                        {/* CTA Button */}
+                                                        <Link href={`/news/${heroArticle.slug}`}>
+                                                            <Button size="lg" className="rounded-full px-8 shadow-lg hover:shadow-xl transition-all group">
+                                                                Read Story
+                                                                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
                                                 </div>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ) : heroArticle.image ? (
-                                    <Link href={`/news/${heroArticle.slug}`} className="relative block w-full group">
-                                        {/* Decorative offset bg */}
-                                        <div className="absolute inset-0 translate-x-3 translate-y-3 bg-primary/5 rounded-2xl -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-500" />
+                                            </div>
 
-                                        <div className="w-full rounded-2xl overflow-hidden shadow-xl ring-1 ring-border/50 bg-background">
-                                            <img
-                                                src={heroArticle.image}
-                                                alt={heroArticle.title}
-                                                className="w-full h-auto max-h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                            />
+                                            {/* Hero Image - Reduced col-span-7 */}
+                                            <div className="lg:col-span-7 flex items-center justify-center lg:justify-end order-1 lg:order-2">
+                                                {heroArticle.video ? (
+                                                    <div className="relative w-full group">
+                                                        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-border/10 bg-black">
+                                                            <video
+                                                                src={heroArticle.video}
+                                                                className="w-full h-full object-cover"
+                                                                autoPlay
+                                                                muted
+                                                                loop
+                                                                playsInline
+                                                            />
+                                                            <Link href={`/news/${heroArticle.slug}`} className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer">
+                                                                <div className="bg-white/90 text-primary rounded-full p-5 shadow-2xl hover:scale-110 transition-transform duration-300">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="ml-1">
+                                                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                                                    </svg>
+                                                                </div>
+                                                            </Link>
+                                                            {auth.user?.is_admin && (
+                                                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                                                    <Link href={`/admin/news/${heroArticle.id}/edit`}>
+                                                                        <Button size="icon" variant="secondary" className="h-8 w-8 shadow-md">
+                                                                            <Pencil className="w-4 h-4" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                    <Button
+                                                                        size="icon"
+                                                                        variant="destructive"
+                                                                        className="h-8 w-8 shadow-md"
+                                                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(heroArticle.id); }}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : heroArticle.image ? (
+                                                    <div className="relative group inline-block max-w-full">
+                                                        <Link href={`/news/${heroArticle.slug}`} className="block">
+                                                            <img
+                                                                src={heroArticle.image}
+                                                                alt={heroArticle.title}
+                                                                className="max-h-[600px] w-auto max-w-full rounded-2xl shadow-2xl ring-1 ring-black/5 object-contain hover:shadow-3xl transition-all duration-700"
+                                                            />
+                                                        </Link>
+                                                        {auth.user?.is_admin && (
+                                                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                                                <Link href={`/admin/news/${heroArticle.id}/edit`}>
+                                                                    <Button size="icon" variant="secondary" className="h-8 w-8 shadow-md">
+                                                                        <Pencil className="w-4 h-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="destructive"
+                                                                    className="h-8 w-8 shadow-md"
+                                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(heroArticle.id); }}
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-full aspect-video rounded-2xl bg-secondary/10 flex items-center justify-center shadow-inner">
+                                                        <span className="text-6xl text-muted-foreground/20 font-serif font-bold">UDD</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </Link>
-                                ) : (
-                                    <div className="w-full aspect-video rounded-2xl bg-secondary/10 flex items-center justify-center shadow-inner">
-                                        <span className="text-6xl text-muted-foreground/20 font-serif font-bold">UDD</span>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        {/* Only show arrows if more than 1 item and maybe only on lg screens? */}
+                        {heroArticles.length > 1 && (
+                            <>
+                                <CarouselPrevious className="left-4 lg:left-8 z-20" />
+                                <CarouselNext className="right-4 lg:right-8 z-20" />
+                            </>
+                        )}
+                    </Carousel>
                 </section>
             ) : (
                 <section className="py-24 px-4 text-center border-b">
@@ -142,17 +219,39 @@ export default function Welcome({
                         {/* Main Feed */}
                         <div className="lg:col-span-8 space-y-12">
                             <div className="flex items-center justify-between border-b pb-4 mb-8">
-                                <h2 className="font-serif text-3xl font-bold">Latest Stories</h2>
+                                <h2 className="font-serif text-3xl font-bold">Latest News</h2>
+                                {auth.user?.is_admin && (
+                                    <Link href="/admin/news/create">
+                                        <Button variant="secondary" className="bg-[#F4D06F] hover:bg-[#F4D06F]/90 text-neutral-900 border-none">Create Article</Button>
+                                    </Link>
+                                )}
                             </div>
 
-                            {/* Primary Grid (First 4 items) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mb-16">
+                            {/* Primary Grid (Next 4 items) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                                 {latestArticles.map((article, i) => (
-                                    <ArticleCard
-                                        key={article.id}
-                                        article={article}
-                                        className={i === 0 ? "md:col-span-2 md:flex-row md:items-start md:gap-8 [&>div:first-child]:md:w-1/2 [&>div:first-child]:aspect-[4/3] [&>div:last-child]:md:w-1/2 [&_h3]:text-3xl" : ""}
-                                    />
+                                    <div key={article.id} className="relative group">
+                                        <ArticleCard
+                                            article={article}
+                                        />
+                                        {auth.user?.is_admin && (
+                                            <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                                <Link href={`/admin/news/${article.id}/edit`}>
+                                                    <Button size="sm" variant="secondary" className="h-8 shadow-md">
+                                                        Edit
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    className="h-8 shadow-md"
+                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(article.id); }}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
 

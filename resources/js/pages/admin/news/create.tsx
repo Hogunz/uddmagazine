@@ -8,13 +8,14 @@ import RichTextEditor from '@/components/rich-text-editor';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export default function CreateNews({ categories }: { categories: Category[] }) {
+export default function CreateNews({ categories, type = 'news' }: { categories: Category[], type?: 'news' | 'hero' }) {
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         slug: '',
         category_id: '',
         content: '',
         published_at: '',
+        is_hero: type === 'hero',
 
         image: null as File | null,
         video: null as File | null,
@@ -35,7 +36,7 @@ export default function CreateNews({ categories }: { categories: Category[] }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <h2 className="text-2xl font-bold mb-6">Create New Article</h2>
+                        <h2 className="text-2xl font-bold mb-6">Create New {type === 'hero' ? 'Hero Article' : 'Article'}</h2>
 
                         <form onSubmit={submit} className="space-y-6 max-w-2xl">
                             <div>
@@ -85,6 +86,7 @@ export default function CreateNews({ categories }: { categories: Category[] }) {
                                     value={data.published_at}
                                     onChange={e => setData('published_at', e.target.value)}
                                 />
+                                {errors.published_at && <div className="text-red-500 text-sm mt-1">{errors.published_at}</div>}
                                 {errors.published_at && <div className="text-red-500 text-sm mt-1">{errors.published_at}</div>}
                             </div>
 

@@ -16,20 +16,38 @@ Route::get('/', function () {
         $query->where('category_id', $category->id);
     }
 
-    $featuredArticles = (clone $query)->latest()->take(5)->get();
-    $featuredIds = $featuredArticles->pluck('id');
+    // Explicit Hero Articles
+    $heroArticles = Article::with('user')->where('is_hero', true)->latest()->take(3)->get();
+    
+    // Latest Articles for the Grid (excluding explicit hero ones to avoid duplication)
+    $latestArticles = Article::with('user')
+                        ->whereNotIn('id', $heroArticles->pluck('id'))
+                        ->latest()
+                        ->take(4)
+                        ->get();
+    
+    // We pass them separately now, or we can merge them if we want to keep the prop name but we should separate.
+    // Let's pass them as 'heroArticles' and 'latestArticles'.
+    // We also need to keep 'featuredArticles' compatible or remove it. 
+    // The current Welcome.tsx uses 'featuredArticles'.
+    // I will refactor Welcome.tsx to accept 'heroArticlesProp' and 'latestArticlesProp'.
+    // For now in this step, I'll pass them in the array.
 
-    $moreArticles = (clone $query)->whereNotIn('id', $featuredIds)->latest()->paginate(9);
+    
+    $excludedIds = $heroArticles->pluck('id')->merge($latestArticles->pluck('id'));
 
-    // Trending stays global, assuming we want to pass it explicitly, or rely on client side logic?
-    // User said "Trending should be in all categories", meaning it shouldn't be filtered.
-    // If welcome.tsx expects `trendingArticles`, we should pass it.
-    // Let's create a global trending query.
+    $moreArticles = Article::with('user')
+        ->whereNotIn('id', $excludedIds)
+        ->latest()
+        ->paginate(12);
+
     $trendingArticles = Article::with('user')->orderBy('views', 'desc')->take(4)->get(); 
 
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
-        'featuredArticles' => $featuredArticles,
+        'heroArticles' => $heroArticles, // New Prop
+        'latestArticles' => $latestArticles, // New Prop
+        'featuredArticles' => [], // Deprecated, passing empty to avoid error if I don't remove it yet
         'moreArticles' => $moreArticles,
         'trendingArticles' => $trendingArticles,
         'categories' => \App\Models\Category::with(['articles' => function($query) {
@@ -43,6 +61,7 @@ Route::get('/news', [ArticleController::class, 'index'])->name('news.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->group(function () {
+        Route::get('/news', [ArticleController::class, 'indexAdmin'])->name('news.admin.index');
         Route::get('/news/create', [ArticleController::class, 'create'])->name('news.create');
         Route::post('/news', [ArticleController::class, 'store'])->name('news.store');
         Route::get('/news/{article}/edit', [ArticleController::class, 'edit'])->name('news.edit');

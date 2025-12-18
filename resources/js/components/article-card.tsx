@@ -49,7 +49,7 @@ export default function ArticleCard({ article, className }: { article: Article, 
                     </time>
                 </div>
 
-                <h3 className="font-serif text-2xl font-bold leading-tight decoration-primary/50 underline-offset-4 transition-colors group-hover:text-primary group-hover:underline break-words">
+                <h3 className="font-serif text-xl md:text-2xl font-bold leading-tight decoration-primary/50 underline-offset-4 transition-colors group-hover:text-primary group-hover:underline break-words">
                     {article.title}
                 </h3>
 

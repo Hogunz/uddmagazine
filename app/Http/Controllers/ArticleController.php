@@ -17,12 +17,40 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function indexAdmin(Request $request)
+    {
+        abort_unless(auth()->user()->is_admin, 403);
+        
+        $type = $request->query('type', 'news'); // 'news' or 'hero'
+        $isHero = $type === 'hero';
+
+        $articles = Article::with(['user', 'category']) // Eager load category too
+            ->where('is_hero', $isHero)
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('admin/news/index', [
+            'articles' => $articles,
+            'type' => $type,
+        ]);
+    }
+
     public function show($slug)
     {
-        $article = Article::with('user')->where('slug', $slug)->firstOrFail();
+        $article = Article::with(['user', 'category'])->where('slug', $slug)->firstOrFail();
         $article->increment('views');
+
+        $trendingArticles = Article::with('user')
+            ->where('id', '!=', $article->id)
+            ->orderBy('views', 'desc')
+            ->take(5)
+            ->get();
+
         return Inertia::render('news/show', [
             'article' => $article,
+            'trendingArticles' => $trendingArticles,
+            'categories' => \App\Models\Category::all(),
         ]);
     }
 
@@ -48,12 +76,15 @@ class ArticleController extends Controller
             'categories' => \App\Models\Category::all(),
         ]);
     }
-    public function create()
+    public function create(Request $request)
     {
         abort_unless(auth()->user()->is_admin, 403);
         $categories = \App\Models\Category::all();
+        $type = $request->query('type', 'news');
+        
         return Inertia::render('admin/news/create', [
             'categories' => $categories,
+            'type' => $type,
         ]);
     }
 
@@ -71,7 +102,10 @@ class ArticleController extends Controller
             'gallery_images.*' => 'image|max:2048', // Allow image files
             'category_id' => 'nullable|exists:categories,id',
             'published_at' => 'nullable|date',
+            'is_hero' => 'boolean',
         ]);
+        
+        $validated['is_hero'] = $request->boolean('is_hero');
 
         $validated['user_id'] = auth()->id();
         $validated['slug'] = $this->generateUniqueSlug($request->title);
@@ -128,6 +162,7 @@ class ArticleController extends Controller
             'gallery_images.*' => 'nullable', // Can be string (existing) or file (new)
             'category_id' => 'nullable|exists:categories,id',
             'published_at' => 'nullable|date',
+            'is_hero' => 'boolean',
         ]);
 
         // Handle Main Image
