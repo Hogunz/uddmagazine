@@ -286,96 +286,158 @@ export default function Welcome({
                                         </div>
 
                                         {/* Alternating Layouts */}
-                                        {index % 2 === 0 ? (
-                                            // Layout A: 1 Large Feature + Side List (1 + 3)
+                                        {/* Alternating Layouts */}
+                                        {index % 3 === 0 ? (
+                                            // Layout 0: Classic Editorial (Large Left + Side List)
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                                                {/* Large Feature */}
-                                                <div className="lg:col-span-8">
+                                                <div className="lg:col-span-7 xl:col-span-8">
                                                     {category.articles[0] && (
-                                                        <Link href={`/news/${category.articles[0].slug}`} className="group grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                                            <div className="aspect-video overflow-hidden rounded-md bg-muted relative">
+                                                        <Link href={`/news/${category.articles[0].slug}`} className="group block relative overflow-hidden rounded-sm shadow-sm">
+                                                            <div className="aspect-[16/10] overflow-hidden bg-muted relative">
                                                                 {category.articles[0].image && (
                                                                     <img
                                                                         src={category.articles[0].image}
                                                                         alt={category.articles[0].title}
-                                                                        className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${category.articles[0].image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
+                                                                        className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${category.articles[0].image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
                                                                     />
                                                                 )}
                                                                 {category.articles[0].video && (
                                                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                                        <div className="bg-white/90 rounded-full p-3 shadow-lg">
+                                                                        <div className="bg-white/90 rounded-full p-4 shadow-lg backdrop-blur-sm">
                                                                             <PlayCircle className="w-8 h-8 text-primary fill-current" />
                                                                         </div>
                                                                     </div>
                                                                 )}
-                                                            </div>
-                                                            <div className="space-y-3">
-                                                                <h4 className="font-serif text-2xl font-bold leading-tight group-hover:text-primary transition-colors break-words">
-                                                                    {category.articles[0].title}
-                                                                </h4>
-                                                                <p className="text-muted-foreground line-clamp-3 font-sans text-sm break-words">
-                                                                    {stripHtml(category.articles[0].content)}
-                                                                </p>
-                                                                <time className="text-xs text-muted-foreground block font-sans">
-                                                                    {new Date(category.articles[0].published_at || category.articles[0].created_at).toLocaleDateString()}
-                                                                </time>
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+                                                                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                                                                    <div className="mb-2">
+                                                                        <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest rounded-sm mb-3">
+                                                                            Featured
+                                                                        </span>
+                                                                    </div>
+                                                                    <h4 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-white leading-tight mb-3 drop-shadow-sm line-clamp-3">
+                                                                        {category.articles[0].title}
+                                                                    </h4>
+                                                                    <p className="text-white/80 line-clamp-2 md:line-clamp-3 max-w-2xl font-serif text-lg leading-relaxed mb-4">
+                                                                        {stripHtml(category.articles[0].content)}
+                                                                    </p>
+                                                                    <div className="text-white/70 text-sm font-medium uppercase tracking-wider flex items-center gap-2">
+                                                                        <span>By {category.articles[0].user?.name || 'Editorial'}</span>
+                                                                        <span className="w-1 h-1 bg-white/50 rounded-full"></span>
+                                                                        <time>{new Date(category.articles[0].published_at || category.articles[0].created_at).toLocaleDateString()}</time>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </Link>
                                                     )}
                                                 </div>
-                                                {/* Side List */}
-                                                <div className="lg:col-span-4 flex flex-col gap-6 border-l pl-0 lg:pl-8 border-border/50">
-                                                    {category.articles.slice(1, 4).map(article => (
-                                                        <Link key={article.id} href={`/news/${article.slug}`} className="group flex gap-4 items-start">
-                                                            <div className="w-20 h-20 shrink-0 aspect-square overflow-hidden rounded-md bg-muted relative">
-                                                                {article.image && (
-                                                                    <img
-                                                                        src={article.image}
-                                                                        alt={article.title}
-                                                                        className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') ? 'object-contain p-2 bg-secondary/10' : 'object-cover'}`}
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <h4 className="font-serif font-bold text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2 break-words">
+                                                <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-0 divide-y divide-border/40 border border-border/40 rounded-sm bg-background">
+                                                    {category.articles.slice(1, 5).map(article => (
+                                                        <Link key={article.id} href={`/news/${article.slug}`} className="group p-5 flex gap-4 items-start hover:bg-muted/30 transition-colors">
+                                                            <div className="space-y-2 flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary">
+                                                                    <span>News</span>
+                                                                    <span className="text-muted-foreground/40">|</span>
+                                                                    <time className="text-muted-foreground">{new Date(article.published_at || article.created_at).toLocaleDateString()}</time>
+                                                                </div>
+                                                                <h4 className="font-serif font-bold text-lg leading-[1.3] group-hover:text-primary transition-colors line-clamp-2">
                                                                     {article.title}
                                                                 </h4>
-                                                                <time className="text-xs text-muted-foreground block font-sans">
-                                                                    {new Date(article.published_at || article.created_at).toLocaleDateString()}
-                                                                </time>
+                                                            </div>
+                                                            <div className="w-24 h-16 shrink-0 bg-muted rounded-sm overflow-hidden relative shadow-sm">
+                                                                {article.image ? (
+                                                                    <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No Img</div>
+                                                                )}
+                                                                {article.video && <div className="absolute inset-0 flex items-center justify-center bg-black/20"><PlayCircle className="w-4 h-4 text-white" /></div>}
                                                             </div>
                                                         </Link>
                                                     ))}
                                                 </div>
                                             </div>
+                                        ) : index % 3 === 1 ? (
+                                            // Layout 1: The "Bento" Mosaic
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 grid-rows-2">
+                                                {/* Large Square Item (First) */}
+                                                {category.articles[0] && (
+                                                    <Link href={`/news/${category.articles[0].slug}`} className="group col-span-1 md:col-span-2 lg:col-span-2 row-span-2 relative h-[500px] overflow-hidden rounded-sm bg-black">
+                                                        {category.articles[0].image && (
+                                                            <img
+                                                                src={category.articles[0].image}
+                                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-60"
+                                                                alt=""
+                                                            />
+                                                        )}
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+                                                        <div className="absolute bottom-0 left-0 p-8 w-full">
+                                                            <h4 className="text-white font-serif font-bold text-3xl md:text-4xl leading-tight mb-4 group-hover:underline decoration-primary decoration-2 underline-offset-4">
+                                                                {category.articles[0].title}
+                                                            </h4>
+                                                            <div className="flex items-center gap-3 text-white/80 text-sm font-medium uppercase tracking-widest">
+                                                                <span>Read Story</span>
+                                                                <ArrowRight className="w-4 h-4" />
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                )}
+
+                                                {/* Second Item (Wide Top Right) */}
+                                                {category.articles[1] && (
+                                                    <Link href={`/news/${category.articles[1].slug}`} className="group col-span-1 md:col-span-2 lg:col-span-2 h-[240px] relative overflow-hidden rounded-sm bg-muted">
+                                                        {category.articles[1].image && (
+                                                            <img src={category.articles[1].image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                                        )}
+                                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                                                        <div className="absolute bottom-4 left-4 right-4">
+                                                            <h4 className="text-white font-bold text-xl leading-tight line-clamp-2">{category.articles[1].title}</h4>
+                                                        </div>
+                                                    </Link>
+                                                )}
+
+                                                {/* Small Items Bottom Right */}
+                                                {category.articles.slice(2, 4).map(article => (
+                                                    <Link key={article.id} href={`/news/${article.slug}`} className="group col-span-1 h-[244px] relative overflow-hidden rounded-sm bg-muted">
+                                                        {article.image && (
+                                                            <img src={article.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                                        )}
+                                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                                                        <div className="absolute bottom-4 left-4 right-4">
+                                                            <h4 className="text-white font-bold text-lg leading-tight line-clamp-3">{article.title}</h4>
+                                                            <time className="text-white/60 text-xs mt-2 block">{new Date(article.published_at || article.created_at).toLocaleDateString()}</time>
+                                                        </div>
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         ) : (
-                                            // Layout B: Standard 4-Col Grid (but cleaner)
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                                                {category.articles.map(article => (
-                                                    <Link key={article.id} href={`/news/${article.slug}`} className="group block space-y-3">
-                                                        <div className="aspect-[3/2] overflow-hidden rounded-md bg-muted relative shadow-sm">
+                                            // Layout 2: Modern Cards Grid (Clean & Minimal)
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                                {category.articles.slice(0, 4).map(article => (
+                                                    <Link key={article.id} href={`/news/${article.slug}`} className="group flex flex-col h-full bg-background border border-border/40 rounded-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+                                                        <div className="aspect-[4/3] overflow-hidden bg-muted relative">
                                                             {article.image && (
                                                                 <img
                                                                     src={article.image}
                                                                     alt={article.title}
-                                                                    className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${article.image?.includes('logo') ? 'object-contain p-4 bg-secondary/10' : 'object-cover'}`}
+                                                                    className={`h-full w-full transition-transform duration-500 group-hover:scale-110 ${article.image?.includes('logo') ? 'object-contain p-8' : 'object-cover'}`}
                                                                 />
                                                             )}
-                                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                                                            {article.video && (
-                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                                    <div className="bg-white/90 rounded-full p-2 shadow-md">
-                                                                        <PlayCircle className="w-6 h-6 text-primary fill-current" />
-                                                                    </div>
-                                                                </div>
-                                                            )}
+                                                            {article.video && <div className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1.5"><Play className="w-3 h-3 fill-current" /></div>}
                                                         </div>
-                                                        <h4 className="font-serif text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 break-words">
-                                                            {article.title}
-                                                        </h4>
-                                                        <time className="text-xs text-muted-foreground block font-sans">
-                                                            {new Date(article.published_at || article.created_at).toLocaleDateString()}
-                                                        </time>
+                                                        <div className="p-5 flex flex-col flex-grow">
+                                                            <div className="text-xs font-bold text-primary uppercase tracking-widest mb-3">
+                                                                {category.name}
+                                                            </div>
+                                                            <h4 className="font-serif font-bold text-xl leading-snug mb-3 line-clamp-3 group-hover:text-primary transition-colors flex-grow">
+                                                                {article.title}
+                                                            </h4>
+                                                            <div className="pt-4 border-t border-border/30 flex items-center justify-between text-xs text-muted-foreground mt-auto">
+                                                                <span>{new Date(article.published_at || article.created_at).toLocaleDateString()}</span>
+                                                                <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform text-foreground font-medium">
+                                                                    Read <ArrowRight className="w-3 h-3" />
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </Link>
                                                 ))}
                                             </div>
