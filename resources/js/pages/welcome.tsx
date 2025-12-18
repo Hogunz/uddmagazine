@@ -66,7 +66,7 @@ export default function Welcome({
             {/* Hero Section - Dynamic Carousel */}
             {/* Hero Section - Magazine Style Redesign */}
             {heroArticles.length > 0 ? (
-                <section className="w-full border-b border-border/40 bg-background">
+                <section className="w-full border-b border-border/40 bg-linear-to-b from-primary/5 to-background">
                     <Carousel
                         opts={{
                             loop: true,
@@ -88,11 +88,11 @@ export default function Welcome({
                                             <div className="lg:col-span-5 flex flex-col justify-center space-y-8 order-2 lg:order-1 h-full py-4">
                                                 <div className="space-y-6">
                                                     {/* Kicker / Masthead Label */}
-                                                    <div className="flex items-center gap-3 border-b border-primary/20 pb-4">
-                                                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                                                    <div className="flex items-center gap-3 pb-4">
+                                                        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] bg-primary text-primary-foreground rounded-full shadow-xs">
                                                             Cover Story
                                                         </span>
-                                                        <span className="h-px w-8 bg-primary/20"></span>
+                                                        <span className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent"></span>
                                                         <time className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                                                             {new Date(heroArticle.published_at || heroArticle.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                                                         </time>
@@ -137,7 +137,7 @@ export default function Welcome({
                                                 {heroArticle.video ? (
                                                     <div className="relative w-full group">
                                                         {/* Reverted to aspect-video for video as it usually needs a frame, but ensuring fit */}
-                                                        <div className="relative w-full aspect-video rounded-sm overflow-hidden shadow-sm border border-border/50 bg-black">
+                                                        <div className="relative w-full aspect-video rounded-sm overflow-hidden shadow-2xl border-4 border-white/20 ring-1 ring-black/5 bg-black">
                                                             <video
                                                                 src={heroArticle.video}
                                                                 className="w-full h-full object-contain"
@@ -234,8 +234,8 @@ export default function Welcome({
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                         {/* Main Feed */}
                         <div className="lg:col-span-8 space-y-12">
-                            <div className="flex items-center justify-between border-b pb-4 mb-8">
-                                <h2 className="font-serif text-3xl font-bold">Latest News</h2>
+                            <div className="flex items-center justify-between border-b border-primary/20 pb-4 mb-8">
+                                <h2 className="font-serif text-3xl font-bold decoration-primary/50 underline decoration-4 underline-offset-8">Latest News</h2>
                                 {auth.user?.is_admin && (
                                     <Link href="/admin/news/create">
                                         <Button variant="secondary" className="bg-[#F4D06F] hover:bg-[#F4D06F]/90 text-neutral-900 border-none">Create Article</Button>
@@ -249,6 +249,7 @@ export default function Welcome({
                                     <div key={article.id} className="relative group">
                                         <ArticleCard
                                             article={article}
+                                            className="h-full hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 border border-transparent bg-card"
                                         />
                                         {auth.user?.is_admin && (
                                             <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
@@ -274,7 +275,7 @@ export default function Welcome({
                             {/* Category Spotlights - Visual Breakers */}
                             {categories?.map((category, index) => (
                                 category.articles && category.articles.length > 0 && (
-                                    <div key={category.id} className="mb-16 border-t pt-8">
+                                    <div key={category.id} className={`mb-16 pt-12 pb-8 ${index % 2 !== 0 ? 'bg-secondary/30 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 rounded-lg' : ''}`}>
                                         <div className="flex items-center justify-between mb-6">
                                             <h3 className="font-serif text-2xl font-bold flex items-center gap-3">
                                                 <span className="w-8 h-1 bg-primary inline-block"></span>
@@ -467,7 +468,7 @@ export default function Welcome({
                         <aside className="lg:col-span-4 pl-0 lg:pl-12 lg:border-l border-border/50">
                             <div className="sticky top-24 space-y-12">
                                 <div className="space-y-6">
-                                    <h3 className="font-serif text-xl font-bold uppercase tracking-wider border-b pb-2">Trending</h3>
+                                    <h3 className="font-serif text-xl font-bold uppercase tracking-wider border-b border-primary/20 pb-2 decoration-primary/50 underline decoration-2 underline-offset-8">Trending</h3>
                                     <div className="space-y-6">
                                         {/* Trending Articles */}
                                         {trendingArticles.map((article, i) => (
@@ -488,16 +489,19 @@ export default function Welcome({
                                     </div>
                                 </div>
 
-                                <div className="bg-muted/30 p-6 border border-border">
-                                    <h3 className="font-serif text-lg font-bold mb-2">Subscribe to our Newsletter</h3>
-                                    <p className="text-sm text-muted-foreground mb-4 font-sans">Get the latest news and updates highlighted every week.</p>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="email"
-                                            placeholder="Your email"
-                                            className="flex-1 bg-background border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                                        />
-                                        <Button size="sm" className="font-sans">Sign Up</Button>
+                                <div className="bg-primary p-8 rounded-sm shadow-lg text-primary-foreground relative overflow-hidden group">
+                                    <div className="absolute -right-6 -top-6 bg-white/10 w-24 h-24 rounded-full transition-transform group-hover:scale-150 duration-700"></div>
+                                    <div className="relative z-10">
+                                        <h3 className="font-serif text-xl font-bold mb-2">Subscribe to our Newsletter</h3>
+                                        <p className="text-sm text-primary-foreground/80 mb-6 font-sans">Get the latest news and updates highlighted every week.</p>
+                                        <div className="flex flex-col gap-3">
+                                            <input
+                                                type="email"
+                                                placeholder="Your email"
+                                                className="w-full bg-white/90 border-transparent px-4 py-3 text-sm text-black placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white transition-all rounded-sm"
+                                            />
+                                            <Button size="lg" className="w-full bg-black text-white hover:bg-black/80 font-bold tracking-wide uppercase text-xs border-none">Sign Up</Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

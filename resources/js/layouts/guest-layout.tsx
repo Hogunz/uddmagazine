@@ -31,12 +31,12 @@ export default function GuestLayout({ children }: PropsWithChildren) {
                                         <img
                                             src="/img/dayew logo light.png"
                                             alt="Dayew Magazine Logo"
-                                            className="h-16 w-auto object-contain block dark:hidden"
+                                            className="h-16 w-auto object-contain block dark:hidden drop-shadow-md"
                                         />
                                         <img
                                             src="/img/dayew logo.png"
                                             alt="Dayew Magazine Logo"
-                                            className="h-16 w-auto object-contain hidden dark:block"
+                                            className="h-16 w-auto object-contain hidden dark:block drop-shadow-md"
                                         />
                                         <span className="font-serif font-bold text-xl">Dayew</span>
                                     </div>
@@ -68,13 +68,13 @@ export default function GuestLayout({ children }: PropsWithChildren) {
                         <img
                             src="/img/dayew logo light.png"
                             alt="Dayew Magazine Logo"
-                            className="h-20 w-auto object-contain block dark:hidden"
+                            className="h-20 w-auto object-contain block dark:hidden drop-shadow-md hover:scale-105 transition-transform duration-300"
                         />
                         {/* Dark Mode Logo */}
                         <img
                             src="/img/dayew logo.png"
                             alt="Dayew Magazine Logo"
-                            className="h-20 w-auto object-contain hidden dark:block"
+                            className="h-20 w-auto object-contain hidden dark:block drop-shadow-md hover:scale-105 transition-transform duration-300"
                         />
                     </Link>
 

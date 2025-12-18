@@ -5,12 +5,12 @@ import { cn } from '@/lib/utils';
 export function Footer({ className }: { className?: string }) {
     return (
         <footer className={cn("py-12 border-t bg-background", className)}>
-            <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-2">
+            <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-6 text-center">
+                <div className="flex flex-row items-center gap-4">
                     <img
                         src="/img/dayew logo.png"
                         alt="UDD News Logo"
-                        className="h-8 w-auto object-contain grayscale opacity-70"
+                        className="h-16 w-auto object-contain grayscale opacity-70"
                     />
                     <p className="text-sm text-muted-foreground">
                         &copy; {new Date().getFullYear()} Universidad de Dagupan. All rights reserved.
