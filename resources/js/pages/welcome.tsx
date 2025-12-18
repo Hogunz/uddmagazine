@@ -64,15 +64,16 @@ export default function Welcome({
             <Head title={currentCategory ? `${currentCategory.name} - Dayew Magazine` : "Welcome - Dayew Magazine"} />
 
             {/* Hero Section - Dynamic Carousel */}
+            {/* Hero Section - Magazine Style Redesign */}
             {heroArticles.length > 0 ? (
-                <section className="relative w-full border-b border-border/50 bg-gradient-to-b from-muted/20 to-background/50">
+                <section className="w-full border-b border-border/40 bg-background">
                     <Carousel
                         opts={{
                             loop: true,
                         }}
                         plugins={[
                             Autoplay({
-                                delay: 5000,
+                                delay: 6000,
                             }),
                         ]}
                         className="w-full"
@@ -81,78 +82,91 @@ export default function Welcome({
                             {heroArticles.map((heroArticle) => (
                                 <CarouselItem key={heroArticle.id}>
                                     <div className="container mx-auto px-4 lg:px-6">
-                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 min-h-[400px] py-12 lg:py-20 items-center">
-                                            {/* Hero Content - Expanded col-span-5 */}
-                                            <div className="lg:col-span-5 flex flex-col justify-center relative z-10 space-y-8 order-2 lg:order-1">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 py-12 lg:py-16 items-start lg:items-center">
+
+                                            {/* Editorial Content - Col Span 5 */}
+                                            <div className="lg:col-span-5 flex flex-col justify-center space-y-8 order-2 lg:order-1 h-full py-4">
                                                 <div className="space-y-6">
+                                                    {/* Kicker / Masthead Label */}
+                                                    <div className="flex items-center gap-3 border-b border-primary/20 pb-4">
+                                                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                                                            Cover Story
+                                                        </span>
+                                                        <span className="h-px w-8 bg-primary/20"></span>
+                                                        <time className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                                                            {new Date(heroArticle.published_at || heroArticle.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                        </time>
+                                                    </div>
 
                                                     <Link href={`/news/${heroArticle.slug}`} className="group block space-y-4">
-                                                        <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-serif font-bold leading-tight tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-3 break-words">
+                                                        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold leading-[1.1] tracking-tight text-foreground group-hover:text-primary transition-colors text-balance break-words line-clamp-2">
                                                             {heroArticle.title}
                                                         </h1>
 
-                                                        <p className="text-lg md:text-xl text-muted-foreground line-clamp-3 font-sans leading-relaxed max-w-xl">
+                                                        <p className="text-lg text-muted-foreground font-serif leading-relaxed line-clamp-3 text-pretty max-w-xl border-l-2 border-border pl-4">
                                                             {stripHtml(heroArticle.content)}
                                                         </p>
                                                     </Link>
 
-                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-6 pt-2">
-                                                        <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm uppercase ring-2 ring-background">
-                                                                    {heroArticle.user?.name?.[0] || 'E'}
-                                                                </div>
-                                                                <span className="text-foreground">{heroArticle.user?.name || 'Editorial Staff'}</span>
+                                                    <div className="flex flex-col gap-6 pt-4">
+                                                        {/* Author Byline */}
+                                                        <div className="flex items-center gap-3 text-sm">
+                                                            <div className="uppercase tracking-widest text-xs font-bold text-foreground/80">
+                                                                By {heroArticle.user?.name || 'The Editors'}
                                                             </div>
-                                                            <span className="opacity-50">•</span>
-                                                            <time>{new Date(heroArticle.published_at || heroArticle.created_at).toLocaleDateString()}</time>
                                                         </div>
 
-                                                        {/* CTA Button */}
-                                                        <Link href={`/news/${heroArticle.slug}`}>
-                                                            <Button size="lg" className="rounded-full px-8 shadow-lg hover:shadow-xl transition-all group">
-                                                                Read Story
-                                                                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                                            </Button>
-                                                        </Link>
+                                                        {/* Actions */}
+                                                        <div className="flex items-center gap-4">
+                                                            <Link href={`/news/${heroArticle.slug}`}>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="lg"
+                                                                    className="rounded-none border-foreground text-foreground hover:bg-foreground hover:text-background transition-all uppercase tracking-widest text-xs font-bold h-12 px-8"
+                                                                >
+                                                                    Read Full Story
+                                                                </Button>
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Hero Image - Reduced col-span-7 */}
+                                            {/* Visuals - Col Span 7 (Preserved Size & Ratio) */}
                                             <div className="lg:col-span-7 flex items-center justify-center lg:justify-end order-1 lg:order-2">
                                                 {heroArticle.video ? (
                                                     <div className="relative w-full group">
-                                                        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-border/10 bg-black">
+                                                        {/* Reverted to aspect-video for video as it usually needs a frame, but ensuring fit */}
+                                                        <div className="relative w-full aspect-video rounded-sm overflow-hidden shadow-sm border border-border/50 bg-black">
                                                             <video
                                                                 src={heroArticle.video}
-                                                                className="w-full h-full object-cover"
+                                                                className="w-full h-full object-contain"
                                                                 autoPlay
                                                                 muted
                                                                 loop
                                                                 playsInline
                                                             />
-                                                            <Link href={`/news/${heroArticle.slug}`} className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer">
-                                                                <div className="bg-white/90 text-primary rounded-full p-5 shadow-2xl hover:scale-110 transition-transform duration-300">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="ml-1">
-                                                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                                                                    </svg>
+                                                            <Link href={`/news/${heroArticle.slug}`} className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors cursor-pointer">
+                                                                <div className="bg-background/90 text-foreground border border-border rounded-full p-4 shadow-sm hover:scale-105 transition-transform duration-300">
+                                                                    <Play className="w-6 h-6 ml-0.5" />
                                                                 </div>
                                                             </Link>
+
+                                                            {/* Admin Controls */}
                                                             {auth.user?.is_admin && (
-                                                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                                                <div className="absolute top-0 right-0 p-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                     <Link href={`/admin/news/${heroArticle.id}/edit`}>
-                                                                        <Button size="icon" variant="secondary" className="h-8 w-8 shadow-md">
-                                                                            <Pencil className="w-4 h-4" />
+                                                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-none border border-border">
+                                                                            <Pencil className="w-3 h-3" />
                                                                         </Button>
                                                                     </Link>
                                                                     <Button
                                                                         size="icon"
                                                                         variant="destructive"
-                                                                        className="h-8 w-8 shadow-md"
+                                                                        className="h-8 w-8 rounded-none"
                                                                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(heroArticle.id); }}
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" />
+                                                                        <Trash2 className="w-3 h-3" />
                                                                     </Button>
                                                                 </div>
                                                             )}
@@ -161,32 +175,33 @@ export default function Welcome({
                                                 ) : heroArticle.image ? (
                                                     <div className="relative group inline-block max-w-full">
                                                         <Link href={`/news/${heroArticle.slug}`} className="block">
+                                                            {/* Reverted to max-h approach, object-contain, flexible width */}
                                                             <img
                                                                 src={heroArticle.image}
                                                                 alt={heroArticle.title}
-                                                                className="max-h-[600px] w-auto max-w-full rounded-2xl shadow-2xl ring-1 ring-black/5 object-contain hover:shadow-3xl transition-all duration-700"
+                                                                className="max-h-[600px] w-auto max-w-full rounded-sm shadow-xl border border-border/20 object-contain hover:shadow-2xl transition-all duration-700"
                                                             />
                                                         </Link>
                                                         {auth.user?.is_admin && (
-                                                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                                            <div className="absolute top-0 right-0 p-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                                                 <Link href={`/admin/news/${heroArticle.id}/edit`}>
-                                                                    <Button size="icon" variant="secondary" className="h-8 w-8 shadow-md">
-                                                                        <Pencil className="w-4 h-4" />
+                                                                    <Button size="icon" variant="secondary" className="h-8 w-8 rounded-none border border-border">
+                                                                        <Pencil className="w-3 h-3" />
                                                                     </Button>
                                                                 </Link>
                                                                 <Button
                                                                     size="icon"
                                                                     variant="destructive"
-                                                                    className="h-8 w-8 shadow-md"
+                                                                    className="h-8 w-8 rounded-none"
                                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(heroArticle.id); }}
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    <Trash2 className="w-3 h-3" />
                                                                 </Button>
                                                             </div>
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <div className="w-full aspect-video rounded-2xl bg-secondary/10 flex items-center justify-center shadow-inner">
+                                                    <div className="w-full aspect-video border border-border bg-secondary/10 flex items-center justify-center">
                                                         <span className="text-6xl text-muted-foreground/20 font-serif font-bold">UDD</span>
                                                     </div>
                                                 )}
@@ -196,12 +211,13 @@ export default function Welcome({
                                 </CarouselItem>
                             ))}
                         </CarouselContent>
-                        {/* Only show arrows if more than 1 item and maybe only on lg screens? */}
-                        {heroArticles.length > 1 && (
-                            <>
-                                <CarouselPrevious className="left-4 lg:left-8 z-20" />
-                                <CarouselNext className="right-4 lg:right-8 z-20" />
-                            </>
+                        {heroArticles.length > 0 && (
+                            <div className="container mx-auto px-4 lg:px-6 relative text-right pb-4 -mt-12 pointer-events-none">
+                                <div className="inline-flex gap-2 pointer-events-auto">
+                                    <CarouselPrevious className="static translate-y-0 rounded-none border-border hover:bg-primary hover:text-primary-foreground h-10 w-10 bg-background/50 backdrop-blur-sm" />
+                                    <CarouselNext className="static translate-y-0 rounded-none border-border hover:bg-primary hover:text-primary-foreground h-10 w-10 bg-background/50 backdrop-blur-sm" />
+                                </div>
+                            </div>
                         )}
                     </Carousel>
                 </section>

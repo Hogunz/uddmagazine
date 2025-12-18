@@ -1,9 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Article, SharedData } from '@/types';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Pencil, Trash } from 'lucide-react';
 import { useState } from 'react';
 import ImageModal from '@/components/image-modal';
 import { Category } from '@/types';
@@ -53,76 +51,91 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-8">
-                        <article className="bg-background rounded-xl">
-                            <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-4">
+                        <article className="bg-background rounded-none lg:rounded-xl overflow-hidden">
+                            {/* Editorial Header */}
+                            <header className="mb-10 text-center px-4 md:px-12 pt-8">
+                                <div className="flex items-center justify-center gap-2 mb-6">
                                     {article.category && (
                                         <Link href={`/category/${article.category.slug}`}>
-                                            <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors">
+                                            <span className="text-primary font-bold tracking-widest text-xs uppercase border-b-2 border-primary pb-1 hover:text-primary/80 transition-colors">
                                                 {article.category.name}
-                                            </Badge>
+                                            </span>
                                         </Link>
                                     )}
-                                    <span className="text-muted-foreground text-sm flex items-center">
-                                        <Calendar className="w-3 h-3 mr-1" />
-                                        {new Date(article.published_at || article.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                                    </span>
                                 </div>
 
-                                <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight break-words">{article.title}</h1>
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-6 leading-[1.1] tracking-tight text-foreground text-balance">
+                                    {article.title}
+                                </h1>
 
-                                <div className="flex justify-between items-center pb-6 border-b">
-                                    <div className="flex items-center gap-3">
-                                        {article.user && (
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                                    {article.user.name.charAt(0)}
-                                                </div>
-                                                <span className="font-medium">{article.user.name}</span>
-                                            </div>
+                                <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground border-y border-border/40 py-6 mt-8 max-w-2xl mx-auto">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-widest">By</span>
+                                        {article.user ? (
+                                            <span className="text-xs font-bold uppercase tracking-widest text-foreground">{article.user.name}</span>
+                                        ) : (
+                                            <span className="text-xs font-bold uppercase tracking-widest text-foreground">Editorial Staff</span>
                                         )}
+                                        <span className="text-border mx-2">|</span>
+                                        <span className="text-xs font-medium uppercase tracking-widest">
+                                            {new Date(article.published_at || article.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                                        </span>
                                     </div>
 
+                                    {/* Admin Controls embedded in header area nicely */}
                                     {auth.user?.is_admin && (
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 opacity-50 hover:opacity-100 transition-opacity">
                                             <Link href={`/admin/news/${article.id}/edit`}>
-                                                <Button size="icon" variant="ghost" title="Edit Article">
-                                                    <Pencil className="w-4 h-4" />
+                                                <Button size="sm" variant="ghost" className="h-6 text-xs uppercase tracking-wider">
+                                                    Edit
                                                 </Button>
                                             </Link>
-                                            <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive" onClick={handleDelete} title="Delete Article">
-                                                <Trash className="w-4 h-4" />
+                                            <Button size="sm" variant="ghost" className="h-6 text-xs uppercase tracking-wider text-destructive hover:text-destructive" onClick={handleDelete}>
+                                                Delete
                                             </Button>
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            </header>
 
+                            {/* Featured Media */}
                             {article.video ? (
-                                <div className="w-full rounded-xl overflow-hidden mb-8 bg-black shadow-lg">
+                                <div className="w-full aspect-video bg-black shadow-sm mb-12">
                                     <video
                                         src={article.video}
                                         controls
-                                        className="w-full max-h-[500px] mx-auto"
+                                        className="w-full h-full object-contain mx-auto"
                                         poster={article.image || undefined}
                                     >
                                         Your browser does not support the video tag.
                                     </video>
                                 </div>
                             ) : article.image && (
-                                <div className="w-full mb-8 flex justify-center">
+                                <div className="w-full mb-12">
                                     <img
                                         src={article.image}
                                         alt={article.title}
-                                        className="max-h-[500px] w-auto max-w-full rounded-xl shadow-lg"
+                                        className="w-full h-auto max-h-[600px] object-contain mx-auto shadow-sm"
                                     />
+                                    <figcaption className="text-center text-xs text-muted-foreground mt-2 italic font-serif">
+                                        {article.title}
+                                    </figcaption>
                                 </div>
                             )}
 
-                            <div
-                                className="prose prose-lg dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:font-bold prose-a:text-primary"
-                                dangerouslySetInnerHTML={{ __html: article.content }}
-                            />
+                            {/* Article Body */}
+                            <div className="px-4 md:px-12 pb-12">
+                                <div
+                                    className="prose prose-lg dark:prose-invert max-w-none 
+                                    prose-headings:font-serif prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+                                    prose-p:font-serif prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground
+                                    prose-a:text-primary prose-a:no-underline prose-a:border-b prose-a:border-primary/50 hover:prose-a:border-primary prose-a:transition-all
+                                    prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:font-serif prose-blockquote:text-xl prose-blockquote:text-muted-foreground
+                                    prose-img:rounded-sm prose-img:shadow-md
+                                    first-letter:float-left first-letter:text-6xl first-letter:font-bold first-letter:font-serif first-letter:text-foreground first-letter:mr-3 first-letter:mt-[-0.15em] first-letter:leading-[0.8]"
+                                    dangerouslySetInnerHTML={{ __html: article.content }}
+                                />
+                            </div>
                         </article>
 
                         {/* Gallery Section */}
@@ -151,15 +164,15 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
                     {/* Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
-                            <div className="bg-secondary/5 rounded-xl p-6 border border-border/50">
-                                <h3 className="text-xl font-bold mb-4 flex items-center">
+                            <div className="bg-secondary/5 rounded-none lg:rounded-xl p-6 border border-border/50">
+                                <h3 className="text-xl font-serif font-bold mb-4 flex items-center">
                                     <span className="w-1 h-6 bg-primary mr-3 rounded-full"></span>
                                     Trending Now
                                 </h3>
                                 <div className="space-y-6">
                                     {trendingArticles.map((item) => (
                                         <Link href={`/news/${item.slug}`} key={item.id} className="group flex gap-4 items-start">
-                                            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted relative">
+                                            <div className="w-20 h-20 flex-shrink-0 rounded-sm overflow-hidden bg-muted relative shadow-sm">
                                                 {item.image ? (
                                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                                                 ) : (
@@ -174,10 +187,10 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
                                                 )}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-sm leading-tight mb-1 group-hover:text-primary transition-colors line-clamp-2">
+                                                <h4 className="font-serif font-bold text-base leading-tight mb-1 group-hover:text-primary transition-colors line-clamp-2">
                                                     {item.title}
                                                 </h4>
-                                                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                                <div className="text-xs text-muted-foreground flex items-center gap-2 font-sans tracking-wide uppercase">
                                                     <span>{new Date(item.published_at || item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                                                 </div>
                                             </div>

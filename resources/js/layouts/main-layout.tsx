@@ -21,7 +21,7 @@ export default function MainLayout({ children, categories = [], currentCategory 
         <div className="flex min-h-screen flex-col bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
             {/* Sticky Header */}
             <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
+                <div className="container mx-auto px-4 h-24 flex items-center justify-between relative">
                     {/* Mobile Menu Trigger */}
                     <div className="md:hidden">
                         <Sheet>
@@ -37,12 +37,12 @@ export default function MainLayout({ children, categories = [], currentCategory 
                                         <img
                                             src="/img/dayew logo light.png"
                                             alt="Dayew Magazine Logo"
-                                            className="h-12 w-auto object-contain block dark:hidden"
+                                            className="h-16 w-auto object-contain block dark:hidden"
                                         />
                                         <img
                                             src="/img/dayew logo.png"
                                             alt="Dayew Magazine Logo"
-                                            className="h-12 w-auto object-contain hidden dark:block"
+                                            className="h-16 w-auto object-contain hidden dark:block"
                                         />
                                         <span className="font-serif font-bold text-xl">Dayew</span>
                                     </div>
@@ -74,13 +74,13 @@ export default function MainLayout({ children, categories = [], currentCategory 
                         <img
                             src="/img/dayew logo light.png"
                             alt="Dayew Magazine Logo"
-                            className="h-14 w-auto object-contain block dark:hidden"
+                            className="h-20 w-auto object-contain block dark:hidden"
                         />
                         {/* Dark Mode Logo */}
                         <img
                             src="/img/dayew logo.png"
                             alt="Dayew Magazine Logo"
-                            className="h-14 w-auto object-contain hidden dark:block"
+                            className="h-20 w-auto object-contain hidden dark:block"
                         />
                     </Link>
                     <nav className="hidden md:flex items-center gap-4">
