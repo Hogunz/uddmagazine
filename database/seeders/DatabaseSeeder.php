@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+
 
         User::firstOrCreate(
             ['email' => 'arzatech2025@gmail.com'],
@@ -44,8 +44,5 @@ class DatabaseSeeder extends Seeder
             );
         });
 
-        // $categories = \App\Models\Category::factory(5)->create();
-        \App\Models\Article::factory(20)->recycle($categories)->create();
-        // \App\Models\Event::factory(10)->recycle($categories)->create();
     }
 }
