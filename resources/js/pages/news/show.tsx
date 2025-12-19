@@ -71,7 +71,9 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
                                 <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground border-y border-border/40 py-6 mt-8 max-w-2xl mx-auto">
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs font-bold uppercase tracking-widest">By</span>
-                                        {article.user ? (
+                                        {article.author_name ? (
+                                            <span className="text-xs font-bold uppercase tracking-widest text-foreground">{article.author_name}</span>
+                                        ) : article.user ? (
                                             <span className="text-xs font-bold uppercase tracking-widest text-foreground">{article.user.name}</span>
                                         ) : (
                                             <span className="text-xs font-bold uppercase tracking-widest text-foreground">Editorial Staff</span>

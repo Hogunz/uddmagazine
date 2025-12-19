@@ -101,6 +101,8 @@ class ArticleController extends Controller
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'image|max:2048', // Allow image files
             'category_id' => 'nullable|exists:categories,id',
+            'user_id' => 'nullable|exists:users,id',
+            'author_name' => 'nullable|string|max:255',
             'published_at' => 'nullable|date',
             'is_hero' => 'boolean',
         ]);
@@ -161,6 +163,7 @@ class ArticleController extends Controller
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'nullable', // Can be string (existing) or file (new)
             'category_id' => 'nullable|exists:categories,id',
+            'author_name' => 'nullable|string|max:255',
             'published_at' => 'nullable|date',
             'is_hero' => 'boolean',
         ]);

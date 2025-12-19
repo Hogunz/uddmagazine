@@ -14,6 +14,7 @@ export default function EditNews({ article, categories }: { article: Article, ca
         title: article.title,
         slug: article.slug,
         category_id: article.category_id ? String(article.category_id) : '',
+        author_name: article.author_name || '',
         content: article.content,
         published_at: article.published_at || '',
         is_hero: article.is_hero || false,
@@ -53,21 +54,36 @@ export default function EditNews({ article, categories }: { article: Article, ca
                                 />
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Category (Optional)</label>
-                                <Select value={data.category_id} onValueChange={(value) => setData('category_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {categories.map((category) => (
-                                            <SelectItem key={category.id} value={String(category.id)}>
-                                                {category.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.category_id && <div className="text-red-500 text-sm mt-1">{errors.category_id}</div>}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Category (Optional)</label>
+                                    <Select value={data.category_id} onValueChange={(value) => setData('category_id', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories.map((category) => (
+                                                <SelectItem key={category.id} value={String(category.id)}>
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.category_id && <div className="text-red-500 text-sm mt-1">{errors.category_id}</div>}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="author_name" className="block text-sm font-medium mb-1">Author Name (Optional)</label>
+                                    <input
+                                        id="author_name"
+                                        type="text"
+                                        placeholder="Leave blank to use your name"
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-zinc-800 dark:border-zinc-700"
+                                        value={data.author_name}
+                                        onChange={e => setData('author_name', e.target.value)}
+                                    />
+                                    {errors.author_name && <div className="text-red-500 text-sm mt-1">{errors.author_name}</div>}
+                                </div>
                             </div>
 
                             <div>

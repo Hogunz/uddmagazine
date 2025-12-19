@@ -66,6 +66,7 @@ export interface Article {
     category_id?: number | null;
     category?: Category | null;
     user?: User | null;
+    author_name?: string | null;
     created_at: string;
     updated_at: string;
     is_hero?: boolean;

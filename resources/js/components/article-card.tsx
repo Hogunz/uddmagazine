@@ -38,7 +38,7 @@ export default function ArticleCard({ article, className }: { article: Article, 
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {/* Placeholder for category if we had one, or just date/author */}
-                    <span className="text-primary">{article.user?.name || 'Editorial'}</span>
+                    <span className="text-primary">{article.author_name || article.user?.name || 'Editorial'}</span>
                     <span>•</span>
                     <time dateTime={article.published_at || article.created_at}>
                         {new Date(article.published_at || article.created_at).toLocaleDateString(undefined, {
