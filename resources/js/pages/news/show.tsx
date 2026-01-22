@@ -9,6 +9,8 @@ import { Category } from '@/types';
 export default function NewsShow({ article, trendingArticles, categories }: { article: Article, trendingArticles: Article[], categories: Category[] }) {
     const { auth } = usePage<SharedData>().props;
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [galleryStartIndex, setGalleryStartIndex] = useState(0);
 
     const handleDelete = () => {
         if (confirm('Are you sure you want to delete this article?')) {
@@ -144,20 +146,39 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
                         {article.gallery_images && article.gallery_images.length > 0 && (
                             <div className="pt-8 border-t">
                                 <h3 className="text-2xl font-bold mb-6">Gallery</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {article.gallery_images.map((image, index) => (
-                                        <div
-                                            key={index}
-                                            className="aspect-video rounded-xl overflow-hidden shadow-sm cursor-pointer group"
-                                            onClick={() => setSelectedImage(image)}
-                                        >
-                                            <img
-                                                src={image}
-                                                alt={`${article.title} gallery ${index + 1}`}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        </div>
-                                    ))}
+                                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                                    {article.gallery_images.slice(0, 4).map((image, index) => {
+                                        const isLastImage = index === 3;
+                                        const remainingCount = article.gallery_images!.length - 4;
+
+                                        return (
+                                            <div
+                                                key={index}
+                                                className={`relative rounded-xl overflow-hidden shadow-sm cursor-pointer group aspect-[4/3] ${article.gallery_images!.length === 3 && index === 0 ? 'col-span-2 aspect-[2/1]' : ''
+                                                    } ${article.gallery_images!.length === 1 ? 'col-span-2 aspect-[2/1]' : ''
+                                                    }`}
+                                                onClick={() => {
+                                                    setGalleryStartIndex(index);
+                                                    setIsGalleryOpen(true);
+                                                }}
+                                            >
+                                                <img
+                                                    src={image}
+                                                    alt={`${article.title} gallery ${index + 1}`}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                />
+
+                                                {/* Overlay for +N images */}
+                                                {isLastImage && remainingCount > 0 && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+                                                        <span className="text-white text-3xl md:text-4xl font-bold">
+                                                            +{remainingCount}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -209,10 +230,12 @@ export default function NewsShow({ article, trendingArticles, categories }: { ar
             </div>
 
             {/* Correct placement of modal */}
+            {/* Image Gallery Modal */}
             <ImageModal
-                isOpen={!!selectedImage}
-                onClose={() => setSelectedImage(null)}
-                imageUrl={selectedImage}
+                isOpen={isGalleryOpen}
+                onClose={() => setIsGalleryOpen(false)}
+                images={article.gallery_images || []}
+                initialIndex={galleryStartIndex}
                 altText={article.title}
             />
         </AppLayout>
