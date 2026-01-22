@@ -96,10 +96,10 @@ class ArticleController extends Controller
             'title' => 'required|string|max:255',
             // 'slug' => 'required|string|max:255|unique:articles', // Auto-generated
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048', // Allow image file, max 2MB
-            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:51200', // Max 50MB
+            'image' => 'nullable|image|max:10240', // Allow image file, max 10MB
+            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:256000', // Max 250MB
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'image|max:2048', // Allow image files
+            'gallery_images.*' => 'image|max:10240', // Allow image files, max 10MB
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'author_name' => 'nullable|string|max:255',

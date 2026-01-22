@@ -112,7 +112,7 @@ export default function Welcome({
                                                         {/* Author Byline */}
                                                         <div className="flex items-center gap-3 text-sm">
                                                             <div className="uppercase tracking-widest text-xs font-bold text-foreground/80">
-                                                                By {heroArticle.user?.name || 'The Editors'}
+                                                                By {heroArticle.author_name || heroArticle.user?.name || 'The Editors'}
                                                             </div>
                                                         </div>
 
@@ -323,7 +323,7 @@ export default function Welcome({
                                                                         {stripHtml(category.articles[0].content)}
                                                                     </p>
                                                                     <div className="text-white/70 text-sm font-medium uppercase tracking-wider flex items-center gap-2">
-                                                                        <span>By {category.articles[0].user?.name || 'Editorial'}</span>
+                                                                        <span>By {category.articles[0].author_name || category.articles[0].user?.name || 'Editorial'}</span>
                                                                         <span className="w-1 h-1 bg-white/50 rounded-full"></span>
                                                                         <time>{new Date(category.articles[0].published_at || category.articles[0].created_at).toLocaleDateString()}</time>
                                                                     </div>
