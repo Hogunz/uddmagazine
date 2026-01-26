@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Article;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class ArticleController extends Controller
 {
@@ -115,7 +116,7 @@ class ArticleController extends Controller
         // Handle Main Image
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $validated['image'] = Storage::url($path);
         } else {
              $validated['image'] = '/UdD-Logo.png';
         }
@@ -123,10 +124,9 @@ class ArticleController extends Controller
         // Handle Video
         if ($request->hasFile('video')) {
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = '/storage/' . $path;
+            $validated['video'] = Storage::url($path);
         }
 
-        // Handle Gallery Images
         // Handle Gallery Images
         $galleryPaths = [];
         
@@ -141,7 +141,7 @@ class ArticleController extends Controller
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
-                 $galleryPaths[] = '/storage/' . $path;
+                 $galleryPaths[] = Storage::url($path);
             }
         }
         $validated['gallery_images'] = $galleryPaths;
@@ -185,7 +185,7 @@ class ArticleController extends Controller
                  // Logic to delete file could go here
             }
             $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $validated['image'] = Storage::url($path);
         } elseif (empty($validated['image']) && empty($article->image)) {
              $validated['image'] = '/UdD-Logo.png';
         } 
@@ -196,7 +196,7 @@ class ArticleController extends Controller
                 // Logic to delete old video
             }
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = '/storage/' . $path;
+            $validated['video'] = Storage::url($path);
         } elseif ($request->has('video') && is_null($request->input('video'))) {
              // If expressly cleared (if we had a clear button), handle here. 
              // Currently we just keep existing if not replaced.
@@ -217,7 +217,7 @@ class ArticleController extends Controller
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
-                 $newGalleryPaths[] = '/storage/' . $path;
+                 $newGalleryPaths[] = Storage::url($path);
             }
         }
         $validated['gallery_images'] = $newGalleryPaths;
@@ -261,7 +261,7 @@ class ArticleController extends Controller
         $path = $request->file('file')->store('uploads/articles/gallery', 'public');
 
         return response()->json([
-            'url' => '/storage/' . $path
+            'url' => Storage::url($path)
         ]);
     }
 }
