@@ -141,7 +141,6 @@ export default function EditNews({ article, categories }: { article: Article, ca
                                     values={data.gallery_images}
                                     onChange={(files) => setData('gallery_images', files as unknown as any[])}
                                     error={errors.gallery_images}
-                                    uploadUrl="/admin/news/gallery/upload"
                                 />
                             </div>
 

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 use App\Models\Article;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 
 class ArticleController extends Controller
 {
@@ -100,7 +99,7 @@ class ArticleController extends Controller
             'image' => 'nullable|image|max:10240', // Allow image file, max 10MB
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:256000', // Max 250MB
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'nullable', // Can be string (existing) or file (new)
+            'gallery_images.*' => 'image|max:10240', // Allow image files, max 10MB
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'author_name' => 'nullable|string|max:255',
@@ -116,7 +115,7 @@ class ArticleController extends Controller
         // Handle Main Image
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = Storage::url($path);
+            $validated['image'] = '/storage/' . $path;
         } else {
              $validated['image'] = '/UdD-Logo.png';
         }
@@ -124,24 +123,15 @@ class ArticleController extends Controller
         // Handle Video
         if ($request->hasFile('video')) {
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = Storage::url($path);
+            $validated['video'] = '/storage/' . $path;
         }
 
         // Handle Gallery Images
         $galleryPaths = [];
-        
-        if ($request->has('gallery_images')) {
-             foreach ($request->input('gallery_images', []) as $item) {
-                 if (is_string($item)) {
-                     $galleryPaths[] = $item;
-                 }
-             }
-        }
-
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
-                 $galleryPaths[] = Storage::url($path);
+                 $galleryPaths[] = '/storage/' . $path;
             }
         }
         $validated['gallery_images'] = $galleryPaths;
@@ -185,7 +175,7 @@ class ArticleController extends Controller
                  // Logic to delete file could go here
             }
             $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = Storage::disk('public')->url($path);
+            $validated['image'] = '/storage/' . $path;
         } elseif (empty($validated['image']) && empty($article->image)) {
              $validated['image'] = '/UdD-Logo.png';
         } 
@@ -196,7 +186,7 @@ class ArticleController extends Controller
                 // Logic to delete old video
             }
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = Storage::disk('public')->url($path);
+            $validated['video'] = '/storage/' . $path;
         } elseif ($request->has('video') && is_null($request->input('video'))) {
              // If expressly cleared (if we had a clear button), handle here. 
              // Currently we just keep existing if not replaced.
@@ -217,7 +207,7 @@ class ArticleController extends Controller
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
-                 $newGalleryPaths[] = Storage::disk('public')->url($path);
+                 $newGalleryPaths[] = '/storage/' . $path;
             }
         }
         $validated['gallery_images'] = $newGalleryPaths;
@@ -248,20 +238,5 @@ class ArticleController extends Controller
         }
 
         return $slug;
-    }
-
-    public function uploadGalleryImage(Request $request)
-    {
-        abort_unless(auth()->user()->is_admin, 403);
-        
-        $request->validate([
-            'file' => 'required|image|max:10240' // 10MB max per file
-        ]);
-
-        $path = $request->file('file')->store('uploads/articles/gallery', 'public');
-
-        return response()->json([
-            'url' => Storage::disk('public')->url($path)
-        ]);
     }
 }

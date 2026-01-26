@@ -3,10 +3,6 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-    <IfModule mod_headers.c>
-        Header unset Content-Security-Policy
-    </IfModule>
-    
     RewriteEngine On
 
     # Handle Authorization Header
