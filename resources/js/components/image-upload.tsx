@@ -87,14 +87,68 @@ export function ImageUpload({ value, onChange, label = "Image", error, className
     );
 }
 
-export function MultiImageUpload({ values = [], onChange, label = "Gallery Images", error, className = "" }: MultiImageUploadProps) {
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+export function MultiImageUpload({ values = [], onChange, label = "Gallery Images", error, className = "", uploadUrl }: MultiImageUploadProps & { uploadUrl?: string }) {
+    const [uploadingFiles, setUploadingFiles] = useState<{ id: string; file: File; progress: number }[]>([]);
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const newFiles = Array.from(e.target.files);
-            onChange([...values, ...newFiles]);
+            const selectedFiles = Array.from(e.target.files);
+
+            if (uploadUrl) {
+                // Async upload mode
+                const newUploadingFiles = selectedFiles.map(file => ({
+                    id: Math.random().toString(36).substr(2, 9),
+                    file,
+                    progress: 0
+                }));
+
+                setUploadingFiles(prev => [...prev, ...newUploadingFiles]);
+
+                // Clear input
+                e.target.value = '';
+
+                // Parallel upload approach
+
+
+                const uploadPromises = newUploadingFiles.map(async (item) => {
+                    const formData = new FormData();
+                    formData.append('file', item.file);
+
+                    try {
+                        const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
+                        const response = await fetch(uploadUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-XSRF-TOKEN': decodeURIComponent(xsrfToken || ''),
+                                'Accept': 'application/json',
+                            },
+                            body: formData
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Update progress
+                            setUploadingFiles(prev => prev.filter(p => p.id !== item.id));
+                            return data.url;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    setUploadingFiles(prev => prev.filter(p => p.id !== item.id)); // Remove on fail too
+                    return null;
+                });
+
+                const results = await Promise.all(uploadPromises);
+                const successfulUrls = results.filter(url => url !== null) as string[];
+
+                onChange([...values, ...successfulUrls]);
+
+            } else {
+                // Legacy local behavior
+                const newFiles = Array.from(e.target.files);
+                onChange([...values, ...newFiles]);
+                e.target.value = '';
+            }
         }
-        // Reset input value to allow selecting the same file again if needed
-        e.target.value = '';
     };
 
     const removeFile = (index: number) => {
@@ -129,6 +183,16 @@ export function MultiImageUpload({ values = [], onChange, label = "Gallery Image
                         </div>
                     );
                 })}
+
+                {/* Uploading Files Placeholders */}
+                {uploadingFiles.map((item) => (
+                    <div key={item.id} className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-zinc-700 bg-gray-50 flex items-center justify-center">
+                        <div className="flex flex-col items-center">
+                            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                            <span className="text-xs text-muted-foreground">Uploading...</span>
+                        </div>
+                    </div>
+                ))}
 
                 <div className="aspect-video rounded-lg border-2 border-dashed border-gray-300 dark:border-zinc-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer relative">
                     <input

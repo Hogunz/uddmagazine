@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/news', [ArticleController::class, 'indexAdmin'])->name('news.admin.index');
         Route::get('/news/create', [ArticleController::class, 'create'])->name('news.create');
         Route::post('/news', [ArticleController::class, 'store'])->name('news.store');
+        Route::post('/news/gallery/upload', [ArticleController::class, 'uploadGalleryImage'])->name('news.gallery.upload');
         Route::get('/news/{article}/edit', [ArticleController::class, 'edit'])->name('news.edit');
         Route::put('/news/{article}', [ArticleController::class, 'update'])->name('news.update');
         Route::delete('/news/{article}', [ArticleController::class, 'destroy'])->name('news.destroy');

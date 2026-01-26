@@ -99,7 +99,7 @@ class ArticleController extends Controller
             'image' => 'nullable|image|max:10240', // Allow image file, max 10MB
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:256000', // Max 250MB
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'image|max:10240', // Allow image files, max 10MB
+            'gallery_images.*' => 'nullable', // Can be string (existing) or file (new)
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'author_name' => 'nullable|string|max:255',
@@ -127,7 +127,17 @@ class ArticleController extends Controller
         }
 
         // Handle Gallery Images
+        // Handle Gallery Images
         $galleryPaths = [];
+        
+        if ($request->has('gallery_images')) {
+             foreach ($request->input('gallery_images', []) as $item) {
+                 if (is_string($item)) {
+                     $galleryPaths[] = $item;
+                 }
+             }
+        }
+
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
@@ -238,5 +248,20 @@ class ArticleController extends Controller
         }
 
         return $slug;
+    }
+
+    public function uploadGalleryImage(Request $request)
+    {
+        abort_unless(auth()->user()->is_admin, 403);
+        
+        $request->validate([
+            'file' => 'required|image|max:10240' // 10MB max per file
+        ]);
+
+        $path = $request->file('file')->store('uploads/articles/gallery', 'public');
+
+        return response()->json([
+            'url' => '/storage/' . $path
+        ]);
     }
 }
