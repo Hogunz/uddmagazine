@@ -23,12 +23,15 @@ export function ImageUpload({ value, onChange, label = "Image", error, className
 
     useEffect(() => {
         if (typeof value === 'string') {
+            console.log('ImageUpload Preview (string):', value);
             setPreview(value);
         } else if (value instanceof File) {
             const objectUrl = URL.createObjectURL(value);
+            console.log('ImageUpload Preview (blob):', objectUrl);
             setPreview(objectUrl);
             return () => URL.revokeObjectURL(objectUrl);
         } else {
+            console.log('ImageUpload Preview (null)');
             setPreview(null);
         }
     }, [value]);

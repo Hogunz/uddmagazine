@@ -185,7 +185,7 @@ class ArticleController extends Controller
                  // Logic to delete file could go here
             }
             $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = Storage::url($path);
+            $validated['image'] = Storage::disk('public')->url($path);
         } elseif (empty($validated['image']) && empty($article->image)) {
              $validated['image'] = '/UdD-Logo.png';
         } 
@@ -196,7 +196,7 @@ class ArticleController extends Controller
                 // Logic to delete old video
             }
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = Storage::url($path);
+            $validated['video'] = Storage::disk('public')->url($path);
         } elseif ($request->has('video') && is_null($request->input('video'))) {
              // If expressly cleared (if we had a clear button), handle here. 
              // Currently we just keep existing if not replaced.
@@ -217,7 +217,7 @@ class ArticleController extends Controller
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
-                 $newGalleryPaths[] = Storage::url($path);
+                 $newGalleryPaths[] = Storage::disk('public')->url($path);
             }
         }
         $validated['gallery_images'] = $newGalleryPaths;
@@ -261,7 +261,7 @@ class ArticleController extends Controller
         $path = $request->file('file')->store('uploads/articles/gallery', 'public');
 
         return response()->json([
-            'url' => Storage::url($path)
+            'url' => Storage::disk('public')->url($path)
         ]);
     }
 }
