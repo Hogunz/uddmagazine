@@ -99,7 +99,8 @@ class ArticleController extends Controller
             'image' => 'nullable|image|max:10240', // Allow image file, max 10MB
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/mp4,video/quicktime|max:256000', // Max 250MB
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'image|max:10240', // Allow image files, max 10MB
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'nullable', // Allow mixed types (string path or file)
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'author_name' => 'nullable|string|max:255',
@@ -126,13 +127,19 @@ class ArticleController extends Controller
             $validated['video'] = '/storage/' . $path;
         }
 
-        // Handle Gallery Images
-        $galleryPaths = [];
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                  $path = $file->store('uploads/articles/gallery', 'public');
                  $galleryPaths[] = '/storage/' . $path;
             }
+        }
+        // Also merge any string paths (already uploaded)
+        if ($request->has('gallery_images')) {
+             foreach ($request->input('gallery_images') as $item) {
+                 if (is_string($item)) {
+                     $galleryPaths[] = $item;
+                 }
+             }
         }
         $validated['gallery_images'] = $galleryPaths;
 
@@ -238,5 +245,20 @@ class ArticleController extends Controller
         }
 
         return $slug;
+    }
+    public function uploadImage(Request $request)
+    {
+        abort_unless(auth()->user()->is_admin, 403);
+
+        $request->validate([
+            'image' => 'required|image|max:10240', // 10MB max
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('uploads/articles/gallery', 'public');
+            return response()->json(['url' => '/storage/' . $path]);
+        }
+
+        return response()->json(['error' => 'No file uploaded'], 400);
     }
 }

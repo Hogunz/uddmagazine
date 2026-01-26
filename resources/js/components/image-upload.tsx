@@ -87,13 +87,76 @@ export function ImageUpload({ value, onChange, label = "Image", error, className
     );
 }
 
-export function MultiImageUpload({ values = [], onChange, label = "Gallery Images", error, className = "" }: MultiImageUploadProps) {
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newFiles = Array.from(e.target.files);
-            onChange([...values, ...newFiles]);
+import axios from 'axios';
+import { Loader2 } from 'lucide-react';
+
+interface MultiImageUploadProps {
+    values?: (File | string)[];
+    onChange: (files: (File | string)[]) => void;
+    label?: string;
+    error?: string;
+    className?: string;
+    uploadEndpoint?: string;
+}
+
+export function MultiImageUpload({ values = [], onChange, label = "Gallery Images", error, className = "", uploadEndpoint }: MultiImageUploadProps) {
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const files = Array.from(e.target.files);
+
+            if (uploadEndpoint) {
+                setIsUploading(true);
+                let completed = 0;
+                const newUrls: string[] = [];
+                const totalFiles = files.length;
+
+                // Process files potentially in parallel or sequence. 
+                // Using sequence to avoid flooding server if browser limits parallel connects.
+                // Or use Promise.all for parallel. Let's do small batches or just simple Promise.all 
+                // since standard browsers handle 6-ish parallel requests.
+
+                try {
+                    // Upload files one by one to ensure reliability
+                    for (const file of files) {
+                        const formData = new FormData();
+                        formData.append('image', file);
+
+                        try {
+                            const response = await axios.post(uploadEndpoint, formData, {
+                                headers: { 'Content-Type': 'multipart/form-data' }
+                            });
+
+                            if (response.data.url) {
+                                newUrls.push(response.data.url);
+                            }
+                        } catch (err) {
+                            console.error("Failed to upload image", err);
+                            // Optionally handle individual failure
+                        }
+
+                        completed++;
+                        setUploadProgress(Math.round((completed / totalFiles) * 100));
+                    }
+
+                    // Append new URLs to existing values
+                    onChange([...values, ...newUrls]);
+
+                } catch (error) {
+                    console.error("Upload process error", error);
+                } finally {
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                }
+
+            } else {
+                // Legacy behavior (if no endpoint provided)
+                onChange([...values, ...files]);
+            }
         }
-        // Reset input value to allow selecting the same file again if needed
+        // Reset input value
         e.target.value = '';
     };
 
@@ -130,17 +193,28 @@ export function MultiImageUpload({ values = [], onChange, label = "Gallery Image
                     );
                 })}
 
-                <div className="aspect-video rounded-lg border-2 border-dashed border-gray-300 dark:border-zinc-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer relative">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileSelect}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        title="Add images"
-                    />
-                    <Upload className="w-6 h-6 text-muted-foreground mb-1" />
-                    <span className="text-xs text-muted-foreground">Add Images</span>
+                {/* Upload Button or Spinner */}
+                <div className={`aspect-video rounded-lg border-2 border-dashed border-gray-300 dark:border-zinc-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900/50 ${!isUploading ? 'hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer' : ''} transition-colors relative`}>
+
+                    {isUploading ? (
+                        <div className="flex flex-col items-center justify-center text-muted-foreground">
+                            <Loader2 className="w-6 h-6 animate-spin mb-2" />
+                            <span className="text-xs">Uploading... {uploadProgress}%</span>
+                        </div>
+                    ) : (
+                        <>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleFileSelect}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                title="Add images"
+                            />
+                            <Upload className="w-6 h-6 text-muted-foreground mb-1" />
+                            <span className="text-xs text-muted-foreground">Add Images</span>
+                        </>
+                    )}
                 </div>
             </div>
             {error && <p className="text-sm text-red-500 mt-1">{error}</p>}

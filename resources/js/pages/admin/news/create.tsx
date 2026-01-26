@@ -114,6 +114,7 @@ export default function CreateNews({ categories, type = 'news' }: { categories: 
                                     values={data.gallery_images}
                                     onChange={(files) => setData('gallery_images', files as unknown as any[])}
                                     error={errors.gallery_images}
+                                    uploadEndpoint="/admin/news/upload-image"
                                 />
                             </div>
 
