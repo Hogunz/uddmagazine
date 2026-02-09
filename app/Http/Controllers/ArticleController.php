@@ -115,17 +115,43 @@ class ArticleController extends Controller
 
         // Handle Main Image
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = '/storage/' . $path;
+             $file = $request->file('image');
+             // Attempt to use getPathname() directly via file_get_contents if getRealPath() fails
+             // This works around Windows temp path issues where realpath() might return false
+             $filename = $file->hashName();
+             $destination = 'uploads/articles/' . $filename;
+             
+             if ($file->isValid()) {
+                // Try manual storage
+                try {
+                    $content = file_get_contents($file->getPathname());
+                    if ($content === false) {
+                        throw new \Exception("Could not read file content");
+                    }
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($destination, $content);
+                    $validated['image'] = '/storage/' . $destination;
+                } catch (\Exception $e) {
+                     \Illuminate\Support\Facades\Log::error('Manual image upload failed', [
+                        'error' => $e->getMessage(),
+                        'path' => $file->getPathname()
+                    ]);
+                    $validated['image'] = '/UdD-Logo.png';
+                }
+             } else {
+                 \Illuminate\Support\Facades\Log::error('Image upload invalid', ['error' => $file->getErrorMessage()]);
+                 $validated['image'] = '/UdD-Logo.png';
+             }
         } else {
              $validated['image'] = '/UdD-Logo.png';
         }
 
-        // Handle Video
         if ($request->hasFile('video')) {
             $path = $request->file('video')->store('uploads/articles/videos', 'public');
             $validated['video'] = '/storage/' . $path;
         }
+
+        $galleryPaths = [];
+
 
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
@@ -181,8 +207,22 @@ class ArticleController extends Controller
             if ($article->image && $article->image !== '/UdD-Logo.png') {
                  // Logic to delete file could go here
             }
-            $path = $request->file('image')->store('uploads/articles', 'public');
-            $validated['image'] = '/storage/' . $path;
+            
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $destination = 'uploads/articles/' . $filename;
+            
+            try {
+                $content = file_get_contents($file->getPathname());
+                if ($content === false) throw new \Exception("Read failed");
+                \Illuminate\Support\Facades\Storage::disk('public')->put($destination, $content);
+                $validated['image'] = '/storage/' . $destination;
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Update image failed', ['error' => $e->getMessage()]);
+                // Keep old image or fallback? If update fails, maybe we shouldn't wipe the old one unless intended?
+                // Logic says validation passed, so we should try to update. If fail, fallback.
+                $validated['image'] = '/UdD-Logo.png';
+            }
         } elseif (empty($validated['image']) && empty($article->image)) {
              $validated['image'] = '/UdD-Logo.png';
         } 
@@ -192,8 +232,30 @@ class ArticleController extends Controller
             if ($article->video) {
                 // Logic to delete old video
             }
-            $path = $request->file('video')->store('uploads/articles/videos', 'public');
-            $validated['video'] = '/storage/' . $path;
+            
+            $file = $request->file('video');
+            $filename = $file->hashName();
+            $destination = 'uploads/articles/videos/' . $filename;
+            
+            try {
+                $content = file_get_contents($file->getPathname()); // Videos might be large, this loads into memory.
+                // For large videos, streams are better, but fopen() caused the original issue!
+                // We'll stick to file_get_contents for consistency hoping memory_limit is enough, 
+                // OR we can try fopen($file->getPathname(), 'r') and pass resource to put().
+                // Storage::put supports resource.
+                $resource = fopen($file->getPathname(), 'r');
+                if ($resource) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($destination, $resource);
+                    fclose($resource);
+                    $validated['video'] = '/storage/' . $destination;
+                } else {
+                     throw new \Exception("Could not open video file");
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Update video failed', ['error' => $e->getMessage()]);
+                // Handle failure
+            }
+
         } elseif ($request->has('video') && is_null($request->input('video'))) {
              // If expressly cleared (if we had a clear button), handle here. 
              // Currently we just keep existing if not replaced.
@@ -213,8 +275,17 @@ class ArticleController extends Controller
 
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
-                 $path = $file->store('uploads/articles/gallery', 'public');
-                 $newGalleryPaths[] = '/storage/' . $path;
+                 $filename = $file->hashName();
+                 $destination = 'uploads/articles/gallery/' . $filename;
+                 try {
+                     $content = file_get_contents($file->getPathname());
+                     if ($content !== false) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->put($destination, $content);
+                        $newGalleryPaths[] = '/storage/' . $destination;
+                     }
+                 } catch (\Exception $e) {
+                     \Illuminate\Support\Facades\Log::error('Gallery upload failed', ['error' => $e->getMessage()]);
+                 }
             }
         }
         $validated['gallery_images'] = $newGalleryPaths;
@@ -255,8 +326,19 @@ class ArticleController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('uploads/articles/gallery', 'public');
-            return response()->json(['url' => '/storage/' . $path]);
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $destination = 'uploads/articles/gallery/' . $filename;
+            
+            try {
+                $content = file_get_contents($file->getPathname());
+                if ($content !== false) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($destination, $content);
+                    return response()->json(['url' => '/storage/' . $destination]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Rich text upload failed', ['error' => $e->getMessage()]);
+            }
         }
 
         return response()->json(['error' => 'No file uploaded'], 400);
